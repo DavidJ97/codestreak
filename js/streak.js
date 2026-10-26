@@ -125,6 +125,31 @@ const Streak = (() => {
   }
 
   /**
+   * Récompense unique (ex. certification obtenue) : n'est donnée qu'une fois par clé.
+   * @param {string} key  identifiant unique de la récompense
+   * @param {number} xp
+   */
+  function award(key, xp) {
+    state.awards = state.awards || {};
+    if (state.awards[key]) return null;
+    state.awards[key] = todayKey();
+    return recordActivity(xp);
+  }
+
+  /**
+   * Entrée du journal de veille : +5 XP, au plus 3 fois par jour
+   * (on récompense l'habitude, pas le volume). Compte pour le streak.
+   */
+  function logJournal() {
+    state.journalXp = state.journalXp || {};
+    const today = todayKey();
+    const n = state.journalXp[today] || 0;
+    if (n >= 3) return null;
+    state.journalXp[today] = n + 1;
+    return recordActivity(5);
+  }
+
+  /**
    * Ajoute des XP au jour courant et met à jour le streak (une fois par jour).
    * @param {number} xp
    */
@@ -184,6 +209,8 @@ const Streak = (() => {
     refresh,
     completeLesson,
     completeProject,
+    award,
+    logJournal,
     lastSevenDays,
     get state() { return state; },
     todayXp: () => state.xpByDay[todayKey()] || 0,

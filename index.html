@@ -48,7 +48,9 @@
 
       <div class="nav-group">
         <button class="nav-item" data-action="home" data-nav="home"><i data-icon="home"></i><span>Accueil</span></button>
-        <button class="nav-item" data-action="projects" data-nav="projects"><i data-icon="code"></i><span>Projets</span></button>
+        <button class="nav-item" data-action="projects" data-nav="projects"><i data-icon="briefcase"></i><span>Projets et métiers</span></button>
+        <button class="nav-item" data-action="certs" data-nav="certs"><i data-icon="trophy"></i><span>Certifications</span></button>
+        <button class="nav-item" data-action="journal" data-nav="journal"><i data-icon="eye"></i><span>Journal de veille</span></button>
       </div>
 
       <div class="nav-group">
@@ -74,6 +76,8 @@
         </button>
         <div class="crumb" id="crumb">Accueil</div>
         <div class="stats" id="stats"><!-- rempli par renderStats() --></div>
+        <!-- Réglages : sur mobile, la barre d'onglets n'a pas la place -->
+        <button class="icon-btn mobile-only" data-action="settings" aria-label="Réglages"><i data-icon="settings"></i></button>
       </header>
 
       <main id="view" class="view"></main>
@@ -86,9 +90,10 @@
   <!-- ===== Barre d'onglets (mobile) ===== -->
   <nav class="tabbar" aria-label="Navigation">
     <button data-action="home" data-nav="home"><i data-icon="home"></i><span>Accueil</span></button>
-    <button data-action="projects" data-nav="projects"><i data-icon="code"></i><span>Projets</span></button>
+    <button data-action="projects" data-nav="projects"><i data-icon="briefcase"></i><span>Projets</span></button>
+    <button data-action="certs" data-nav="certs"><i data-icon="trophy"></i><span>Certifs</span></button>
+    <button data-action="journal" data-nav="journal"><i data-icon="eye"></i><span>Veille</span></button>
     <button data-action="toggle-chat"><i data-icon="sparkles"></i><span>Tuteur</span></button>
-    <button data-action="settings"><i data-icon="settings"></i><span>Réglages</span></button>
   </nav>
 
   <!-- ===== Panneau du tuteur IA ===== -->
@@ -128,6 +133,7 @@
   <script src="js/lessons/linguist.js"></script>
   <script src="js/lessons/aisec.js"></script>
   <script src="js/projects.js"></script>
+  <script src="js/certs.js"></script>
   <script src="js/streak.js"></script>
   <script src="js/runner.js"></script>
   <script src="js/chat.js"></script>

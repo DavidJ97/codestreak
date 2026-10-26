@@ -996,6 +996,40 @@ const App = (() => {
 
       // --- Projets ---
       case "projects": renderProjects(); break;
+
+      // --- Certifications ---
+      case "certs": renderCerts(); break;
+      case "cert-filter": certFilter = el.dataset.filter; renderCerts(); break;
+
+      // --- Journal de veille ---
+      case "journal": renderJournal(); break;
+      case "journal-type":
+        journalType = el.dataset.type;
+        document.querySelectorAll('[data-action="journal-type"]').forEach((b) => {
+          b.classList.toggle("on", b === el);
+          b.setAttribute("aria-checked", b === el);
+        });
+        break;
+      case "journal-filter": journalFilter = el.dataset.filter; renderJournal(); break;
+      case "journal-delete":
+        if (el.dataset.confirm === "1") {
+          Journal.save(Journal.all().filter((x) => x.id !== el.dataset.id));
+          renderJournal();
+        } else {
+          // Confirmation en deux clics
+          el.dataset.confirm = "1";
+          el.classList.add("danger");
+          el.title = "Cliquer encore pour supprimer";
+        }
+        break;
+      case "journal-digest": {
+        const since = Streak._internals.addDays(Streak._internals.todayKey(), -6);
+        const week = Journal.all().filter((x) => x.date >= since);
+        Chat.send("Voici mon journal de veille des 7 derniers jours. Fais-moi un bilan court : les 3 points clés, " +
+          "ce que je devrais approfondir, et une action concrète pour mon portfolio ou mes certifications.\n\n" +
+          week.map((x) => `- [${JOURNAL_TYPES[x.type]?.label}] ${x.title}${x.note ? ` : ${x.note}` : ""}`).join("\n"));
+        break;
+      }
       case "open-project": renderProject(el.dataset.project); break;
       case "copy-readme": {
         const text = readmeFor(findProject(el.dataset.project));
@@ -1089,6 +1123,11 @@ const App = (() => {
   });
 
   /* Clavier : Entrée = Vérifier / Continuer ; touches 1-9 = choisir une réponse ; Échap = fermer */
+  /* Changement de statut / date d'une certification */
+  document.addEventListener("change", (e) => {
+    if (e.target.dataset.certStatus || e.target.dataset.certDate) onCertChange(e.target);
+  });
+
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       closeModal();
@@ -1109,6 +1148,238 @@ const App = (() => {
      DÉMARRAGE
      ====================================================================== */
   /** Construit la liste des cours dans la barre latérale à partir de COURSES. */
+  /* ======================================================================
+     CERTIFICATIONS
+     Données : js/certs.js (window.CERTS). Le statut de chaque certification
+     (envisagée, en préparation, examen planifié, obtenue) et la date
+     d'examen sont sauvegardés localement.
+     ====================================================================== */
+  const CertState = {
+    all: () => Storage.get("certs", {}),
+    get(id) { return this.all()[id] || { status: "none", date: "" }; },
+    set(id, data) { const a = this.all(); a[id] = { ...this.get(id), ...data }; Storage.set("certs", a); },
+  };
+  const CERT_STATUS = [
+    ["none", "Pas commencée"], ["planned", "Envisagée"], ["prep", "En préparation"], ["exam", "Examen réservé"], ["done", "Obtenue"],
+  ];
+  let certFilter = "all";
+
+  function certCard(c) {
+    const st = CertState.get(c.id);
+    const courses = (c.covers.courses || []).map((id) => window.COURSES[id]).filter(Boolean);
+    const projects = (c.covers.projects || []).map(findProject).filter(Boolean);
+    return `
+      <article class="cert${st.status === "done" ? " is-done" : ""}" id="cert-${c.id}">
+        <header class="cert-head">
+          <span class="chip">${c.level}</span>
+          ${st.status === "done" ? `<span class="chip done">${icon("check", 13)}Obtenue</span>` : ""}
+        </header>
+        <div>
+          <h3>${escapeHtml(c.name)}</h3>
+          <p class="cert-issuer">${escapeHtml(c.issuer)}</p>
+        </div>
+        <dl class="cert-facts">
+          <div><dt>Coût</dt><dd>${escapeHtml(c.cost)}${c.costChecked ? "" : ` <span class="chip warn">à vérifier</span>`}</dd></div>
+          <div><dt>Format</dt><dd>${escapeHtml(c.format)}</dd></div>
+          <div><dt>Prérequis</dt><dd>${escapeHtml(c.prereq)}</dd></div>
+        </dl>
+        ${c.note ? `<p class="cert-note">${icon("info", 16)}<span>${escapeHtml(c.note)}</span></p>` : ""}
+        <div class="career-block">
+          <span class="eyebrow">L'app te prépare avec</span>
+          <div class="chips">
+            ${courses.map((co) => `<button class="chip link cs cc-chip" ${cs(co)} data-action="open-course" data-course="${co.id}">${icon(co.badge, 13)}${co.name}</button>`).join("")}
+            ${projects.map((p) => `<button class="chip link" data-action="open-project" data-project="${p.id}">${icon("folder", 13)}${escapeHtml(p.title)}</button>`).join("")}
+          </div>
+        </div>
+        <div class="career-block">
+          <span class="eyebrow">À étudier en plus</span>
+          <p class="cert-gap">${escapeHtml(c.gaps)}</p>
+        </div>
+        <details class="cert-steps">
+          <summary>Comment l'obtenir</summary>
+          <ol>${c.steps.map((s) => `<li>${escapeHtml(s)}</li>`).join("")}</ol>
+        </details>
+        <footer class="cert-foot">
+          <label class="sr-only" for="st-${c.id}">Statut</label>
+          <select id="st-${c.id}" data-cert-status="${c.id}">
+            ${CERT_STATUS.map(([v, l]) => `<option value="${v}" ${v === st.status ? "selected" : ""}>${l}</option>`).join("")}
+          </select>
+          <label class="sr-only" for="dt-${c.id}">Date de l'examen</label>
+          <input id="dt-${c.id}" type="date" data-cert-date="${c.id}" value="${st.date || ""}" ${st.status === "exam" || st.status === "done" ? "" : "hidden"}>
+          <a class="btn btn-sm btn-line" href="${c.url}" target="_blank" rel="noopener">${icon("external", 14)}Page officielle</a>
+        </footer>
+      </article>`;
+  }
+
+  function renderCerts() {
+    session = null;
+    Chat.setContext(null, "Certifications");
+    setChrome({ nav: "certs", crumb: "<b>Certifications</b>" });
+    const certs = window.CERTS || [];
+    const states = certs.map((c) => ({ c, st: CertState.get(c.id) }));
+    const done = states.filter((x) => x.st.status === "done").length;
+    const prep = states.filter((x) => ["prep", "exam"].includes(x.st.status)).length;
+    const next = states.filter((x) => x.st.status === "exam" && x.st.date).sort((a, b) => a.st.date.localeCompare(b.st.date))[0];
+    const shown = certFilter === "all" ? certs : certs.filter((c) => c.careers.includes(certFilter));
+
+    view.innerHTML = `
+      <header class="hello">
+        <span class="eyebrow">Certifications</span>
+        <h1>Les certifications reconnues, et le chemin pour les obtenir.</h1>
+        <p>Une certification passe les filtres RH ; ton portfolio prouve que tu sais livrer. Pour chacune : ce que l'app couvre,
+        ce qu'il faut étudier ailleurs, les étapes et la page officielle. Prix vérifiés en octobre 2026 : relis toujours la page officielle avant de payer.</p>
+      </header>
+      <div class="kpis">
+        <div class="kpi"><span class="num">${done}</span><span>Obtenues</span></div>
+        <div class="kpi"><span class="num">${prep}</span><span>En préparation</span></div>
+        <div class="kpi"><span class="num">${next ? new Date(next.st.date + "T12:00").toLocaleDateString("fr-CA", { day: "numeric", month: "short" }) : "—"}</span><span>${next ? escapeHtml(next.c.name.split(" — ")[0].split(" (")[0]) : "Prochain examen"}</span></div>
+      </div>
+      <div class="filters" role="tablist" aria-label="Filtrer par métier">
+        <button class="filter${certFilter === "all" ? " on" : ""}" data-action="cert-filter" data-filter="all">Tous</button>
+        ${(window.CAREERS || []).map((j) => `<button class="filter${certFilter === j.id ? " on" : ""}" data-action="cert-filter" data-filter="${j.id}">${icon(j.icon, 14)}${j.title}</button>`).join("")}
+      </div>
+      <div class="cert-grid">${shown.map(certCard).join("")}</div>`;
+  }
+
+  /** Changement de statut ou de date d'une certification. */
+  function onCertChange(el) {
+    if (el.dataset.certStatus) {
+      const id = el.dataset.certStatus;
+      CertState.set(id, { status: el.value });
+      if (el.value === "done") {
+        const r = Streak.award(`cert:${id}`, 100); // +100 XP la première fois
+        if (r) renderStats();
+      }
+      renderCerts();
+      document.getElementById(`cert-${id}`)?.scrollIntoView({ block: "center" });
+    } else if (el.dataset.certDate) {
+      CertState.set(el.dataset.certDate, { date: el.value });
+    }
+  }
+
+  /* ======================================================================
+     JOURNAL DE VEILLE
+     Pour noter les tendances, failles, innovations, certifications et
+     apprentissages, avec "ce que ça change pour moi". Chaque entrée
+     rapporte 5 XP (3 fois par jour au maximum) et compte pour le streak.
+     ====================================================================== */
+  const JOURNAL_TYPES = {
+    tendance: { label: "Tendance", icon: "rocket" },
+    faille: { label: "Faille", icon: "bug" },
+    innovation: { label: "Innovation", icon: "sparkles" },
+    certif: { label: "Certification", icon: "trophy" },
+    appris: { label: "Appris", icon: "book-open" },
+  };
+  const Journal = {
+    all: () => Storage.get("journal", []),
+    save: (list) => Storage.set("journal", list),
+  };
+  let journalFilter = "all";
+  let journalType = "tendance";
+
+  function journalEntry(e) {
+    const t = JOURNAL_TYPES[e.type] || JOURNAL_TYPES.appris;
+    const job = (window.CAREERS || []).find((j) => j.id === e.domain);
+    const date = new Date(e.date + "T12:00").toLocaleDateString("fr-CA", { day: "numeric", month: "long", year: "numeric" });
+    const safeUrl = /^https?:\/\//i.test(e.url || "") ? e.url : "";
+    return `
+      <li class="entry type-${e.type}">
+        <span class="entry-ico">${icon(t.icon, 18)}</span>
+        <div class="entry-body">
+          <div class="entry-meta"><span>${t.label}</span><span>${date}</span>${job ? `<span>${escapeHtml(job.title)}</span>` : ""}</div>
+          <h3>${safeUrl ? `<a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener">${escapeHtml(e.title)} ${icon("external", 13)}</a>` : escapeHtml(e.title)}</h3>
+          ${e.note ? `<p>${escapeHtml(e.note)}</p>` : ""}
+        </div>
+        <button class="icon-btn" data-action="journal-delete" data-id="${e.id}" aria-label="Supprimer l'entrée" title="Supprimer">${icon("trash", 16)}</button>
+      </li>`;
+  }
+
+  function renderJournal() {
+    session = null;
+    Chat.setContext(null, "Journal de veille");
+    setChrome({ nav: "journal", crumb: "<b>Journal de veille</b>" });
+    const list = Journal.all();
+    const weekAgo = Streak._internals.addDays(Streak._internals.todayKey(), -6);
+    const thisWeek = list.filter((e) => e.date >= weekAgo).length;
+    const goal = 3;
+    const shown = (journalFilter === "all" ? list : list.filter((e) => e.type === journalFilter))
+      .slice().sort((a, b) => (b.date + b.id).localeCompare(a.date + a.id));
+
+    view.innerHTML = `
+      <header class="hello">
+        <span class="eyebrow">Journal de veille</span>
+        <h1>Ce qui bouge, et ce que ça change pour toi.</h1>
+        <p>Note une tendance, une faille, une innovation ou une certification, avec ce que tu en retiens. Trois entrées par semaine
+        suffisent pour rester à jour, et chaque entrée compte pour ton streak.</p>
+      </header>
+
+      <section class="journal-top">
+        <div class="card goal-row">
+          ${ring(Math.round((thisWeek / goal) * 100), 72, thisWeek >= goal ? "var(--good)" : "var(--py)", `<span class="num" style="font-size:1.1rem">${thisWeek}/${goal}</span>`, 7)}
+          <div>
+            <span class="eyebrow">Cette semaine</span>
+            <p>${thisWeek >= goal ? "Objectif de veille atteint." : `Encore ${goal - thisWeek} entrée${goal - thisWeek > 1 ? "s" : ""} pour ta veille hebdomadaire.`}</p>
+            <button class="btn btn-sm btn-line" data-action="journal-digest" style="margin-top:8px" ${thisWeek ? "" : "disabled"}>${icon("sparkles", 14)}Bilan de la semaine avec le tuteur</button>
+          </div>
+        </div>
+
+        <form class="card journal-form" id="journal-form">
+          <div class="type-pick" role="radiogroup" aria-label="Type d'entrée">
+            ${Object.entries(JOURNAL_TYPES).map(([k, t]) => `<button type="button" class="filter${k === journalType ? " on" : ""}" role="radio" aria-checked="${k === journalType}" data-action="journal-type" data-type="${k}">${icon(t.icon, 14)}${t.label}</button>`).join("")}
+          </div>
+          <div class="field"><label for="j-title">Titre</label><input id="j-title" required maxlength="160" placeholder="Ex. : OWASP publie une mise à jour du Top 10 Agentic"></div>
+          <div class="journal-row">
+            <div class="field"><label for="j-url">Lien (facultatif)</label><input id="j-url" type="url" placeholder="https://…"></div>
+            <div class="field"><label for="j-domain">Métier concerné</label>
+              <select id="j-domain"><option value="">Général</option>${(window.CAREERS || []).map((j) => `<option value="${j.id}">${j.title}</option>`).join("")}</select>
+            </div>
+          </div>
+          <div class="field"><label for="j-note">Ce que ça change pour moi</label><textarea id="j-note" rows="3" placeholder="Ex. : vérifier les descriptions d'outils de mon serveur MCP ; ajouter un test au projet de red team."></textarea></div>
+          <button class="btn" type="submit">${icon("check", 16)}Ajouter au journal</button>
+        </form>
+      </section>
+
+      <section style="margin-top:28px">
+        <div class="section-head"><h2>Entrées</h2><span class="eyebrow">${list.length} au total</span></div>
+        <div class="filters">
+          <button class="filter${journalFilter === "all" ? " on" : ""}" data-action="journal-filter" data-filter="all">Toutes</button>
+          ${Object.entries(JOURNAL_TYPES).map(([k, t]) => `<button class="filter${journalFilter === k ? " on" : ""}" data-action="journal-filter" data-filter="${k}">${icon(t.icon, 14)}${t.label}</button>`).join("")}
+        </div>
+        ${shown.length ? `<ul class="entries">${shown.map(journalEntry).join("")}</ul>`
+          : `<div class="empty">${icon("eye", 28)}<p>Aucune entrée pour l'instant. Commence par une source ci-dessous : lis une nouveauté, puis note ce que tu en retiens.</p></div>`}
+      </section>
+
+      <section style="margin-top:28px">
+        <div class="section-head"><h2>Où faire ta veille</h2><span class="eyebrow">Sources officielles</span></div>
+        <div class="watch-grid">
+          ${(window.WATCH || []).map((g) => `
+            <article class="watch">
+              <h3>${icon(g.icon, 18)}${g.title}</h3>
+              <ul>${g.items.map((it) => `<li><a href="${it.url}" target="_blank" rel="noopener">${escapeHtml(it.name)} ${icon("external", 12)}</a><span>${escapeHtml(it.why)}</span></li>`).join("")}</ul>
+            </article>`).join("")}
+        </div>
+      </section>`;
+
+    document.getElementById("journal-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const title = document.getElementById("j-title").value.trim();
+      if (!title) return;
+      const entry = {
+        id: Date.now().toString(36),
+        date: Streak._internals.todayKey(),
+        type: journalType,
+        title,
+        url: document.getElementById("j-url").value.trim(),
+        domain: document.getElementById("j-domain").value,
+        note: document.getElementById("j-note").value.trim(),
+      };
+      Journal.save([...Journal.all(), entry]);
+      Streak.logJournal(); // +5 XP (3 fois par jour max)
+      renderStats();
+      renderJournal();
+    });
+  }
+
   function renderNav() {
     document.getElementById("nav-courses").innerHTML = Object.values(window.COURSES).map((c) => `
       <button class="nav-item cs" ${cs(c)} data-action="open-course" data-course="${c.id}" data-nav="${c.id}">

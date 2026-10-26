@@ -9,7 +9,7 @@
    {
      id:        identifiant unique (sert à sauvegarder la progression)
      title:     titre affiché dans le parcours
-     icon:      emoji du bouton rond
+     icon:      nom de l'icône SVG (voir js/icons.js)
      theory:    HTML de l'explication (affiché avant les exercices)
      example:   code d'exemple, modifiable et exécutable ("Essaie-le toi-même")
      exercises: liste d'exercices (voir ci-dessous)
@@ -21,7 +21,7 @@
    - "order" : remettre les lignes dans l'ordre. { q, lines:[ordre correct] }
    Chaque exercice a un champ "explain" affiché après la réponse.
 
-   ⚠️ Les leçons sont dans des gabarits `...` (template literals) : éviter
+   Les leçons sont dans des gabarits `...` (template literals) : éviter
    d'écrire le caractère "accent grave" ou "${" dans le code des exemples.
    ========================================================================== */
 
@@ -30,7 +30,7 @@ window.COURSES = window.COURSES || {};
 window.COURSES.python = {
   id: "python",
   name: "Python",
-  badge: "🐍",
+  badge: "code",
   language: "python",          // nom du langage pour Prism (coloration)
   runnable: true,              // le code peut être exécuté dans le navigateur (Pyodide)
   tagline: "Le langage le plus populaire au monde : simple, lisible, partout (IA, web, data).",
@@ -39,7 +39,7 @@ window.COURSES.python = {
     {
       id: "py-intro",
       title: "Introduction",
-      icon: "👋",
+      icon: "book-open",
       theory: `
         <h2>Qu'est-ce que Python ?</h2>
         <p>Python est un langage de programmation créé par Guido van Rossum et publié en 1991.
@@ -51,7 +51,7 @@ window.COURSES.python = {
           <li>Il fonctionne sur Windows, Mac, Linux, Raspberry Pi…</li>
         </ul>
         <p>La première instruction à connaître est <code>print()</code>, qui affiche du texte à l'écran.</p>
-        <div class="tip">💡 Clique sur <b>Exécuter</b> ci-dessous, puis modifie le texte et relance !</div>`,
+        <div class="tip">Clique sur <b>Exécuter</b> ci-dessous, puis modifie le texte et relance !</div>`,
       example: `print("Bonjour, le monde !")
 print("J'apprends Python avec CodeStreak")`,
       exercises: [
@@ -70,7 +70,7 @@ print("J'apprends Python avec CodeStreak")`,
     {
       id: "py-syntax",
       title: "Syntaxe et indentation",
-      icon: "📐",
+      icon: "indent",
       theory: `
         <h2>L'indentation, c'est la loi</h2>
         <p>Dans beaucoup de langages, les blocs de code sont délimités par des accolades <code>{ }</code>.
@@ -78,7 +78,7 @@ print("J'apprends Python avec CodeStreak")`,
         fait partie d'un bloc.</p>
         <p>Une ligne qui se termine par <code>:</code> (comme <code>if</code>, <code>for</code>, <code>def</code>)
         annonce un bloc : les lignes suivantes doivent être décalées.</p>
-        <div class="tip">💡 La convention (PEP 8) est d'utiliser <b>4 espaces</b> par niveau.
+        <div class="tip">La convention (PEP 8) est d'utiliser <b>4 espaces</b> par niveau.
         Oublier l'indentation provoque une <code>IndentationError</code>.</div>`,
       example: `if 5 > 2:
     print("Cinq est plus grand que deux !")
@@ -101,7 +101,7 @@ print("Celle-ci est en dehors du bloc")`,
     {
       id: "py-comments",
       title: "Commentaires",
-      icon: "💬",
+      icon: "comment",
       theory: `
         <h2>Expliquer son code</h2>
         <p>Un commentaire commence par <code>#</code>. Tout ce qui suit sur la ligne est
@@ -131,7 +131,7 @@ print("Fin")`,
     {
       id: "py-variables",
       title: "Variables",
-      icon: "📦",
+      icon: "box",
       theory: `
         <h2>Ranger des valeurs</h2>
         <p>Une variable est une "boîte" avec un nom qui contient une valeur. En Python, pas besoin de
@@ -172,7 +172,7 @@ print(age)`,
     {
       id: "py-datatypes",
       title: "Types de données",
-      icon: "🧬",
+      icon: "shapes",
       theory: `
         <h2>Chaque valeur a un type</h2>
         <table>
@@ -209,7 +209,7 @@ print(type(None))`,
     {
       id: "py-numbers",
       title: "Nombres et conversion",
-      icon: "🔢",
+      icon: "hash",
       theory: `
         <h2>int, float et casting</h2>
         <p><code>int</code> = entier (<code>7</code>, <code>-3</code>), <code>float</code> = nombre décimal (<code>2.5</code>).</p>
@@ -250,7 +250,7 @@ print(round(3.9))`,
     {
       id: "py-strings",
       title: "Chaînes de caractères",
-      icon: "🔤",
+      icon: "type",
       theory: `
         <h2>Manipuler du texte</h2>
         <p>Une chaîne (<code>str</code>) s'écrit entre <code>"..."</code> ou <code>'...'</code>.
@@ -293,7 +293,7 @@ print(phrase.split(","))`,
     {
       id: "py-booleans",
       title: "Booléens et opérateurs",
-      icon: "⚖️",
+      icon: "toggle",
       theory: `
         <h2>Vrai ou faux</h2>
         <p>Un booléen vaut <code>True</code> ou <code>False</code>. On les obtient surtout en comparant :</p>
@@ -323,7 +323,7 @@ print(bool(0), bool(""), bool("abc"), bool([1]))`,
     {
       id: "py-lists",
       title: "Listes",
-      icon: "📋",
+      icon: "list",
       theory: `
         <h2>Des collections ordonnées et modifiables</h2>
         <p>Une liste s'écrit entre crochets : <code>fruits = ["pomme", "banane"]</code>.
@@ -364,7 +364,7 @@ print([n * 2 for n in nombres])`,
     {
       id: "py-tuples-sets",
       title: "Tuples et sets",
-      icon: "🧺",
+      icon: "layers",
       theory: `
         <h2>Deux autres collections</h2>
         <p><b>Tuple</b> <code>(1, 2, 3)</code> : ordonné mais <b>non modifiable</b> (immuable).
@@ -399,7 +399,7 @@ print(a.intersection(b))`,
     {
       id: "py-dicts",
       title: "Dictionnaires",
-      icon: "📖",
+      icon: "braces",
       theory: `
         <h2>Des paires clé → valeur</h2>
         <p>Un dictionnaire associe des <b>clés</b> à des <b>valeurs</b> : <code>{"nom": "Ana", "age": 30}</code>.</p>
@@ -432,7 +432,7 @@ for cle, valeur in personne.items():
     {
       id: "py-if",
       title: "Conditions if / elif / else",
-      icon: "🔀",
+      icon: "branch",
       theory: `
         <h2>Prendre des décisions</h2>
         <p><code>if</code> exécute un bloc si la condition est vraie. <code>elif</code> ("else if") teste une
@@ -466,7 +466,7 @@ print(statut)`,
     {
       id: "py-loops",
       title: "Boucles while et for",
-      icon: "🔁",
+      icon: "repeat",
       theory: `
         <h2>Répéter des actions</h2>
         <p><b>while</b> répète tant qu'une condition est vraie (attention à ne pas créer de boucle infinie !).</p>
@@ -505,7 +505,7 @@ for n in range(10):
     {
       id: "py-functions",
       title: "Fonctions et lambda",
-      icon: "🧩",
+      icon: "function",
       theory: `
         <h2>Réutiliser du code</h2>
         <p>Une fonction se définit avec <code>def</code>, prend des <b>paramètres</b> et peut
@@ -546,7 +546,7 @@ print(somme(2, 3))`,
     {
       id: "py-classes",
       title: "Classes et objets",
-      icon: "🏗️",
+      icon: "blocks",
       theory: `
         <h2>Programmation orientée objet</h2>
         <p>Une <b>classe</b> est un plan (un moule) ; un <b>objet</b> est une instance construite à partir de ce plan.</p>
@@ -587,7 +587,7 @@ Chiot("Pipo", 0).aboyer()`,
     {
       id: "py-try",
       title: "Gérer les erreurs",
-      icon: "🛟",
+      icon: "shield",
       theory: `
         <h2>try / except / finally</h2>
         <p>Quand une erreur (une <b>exception</b>) survient, le programme s'arrête... sauf si on l'attrape.</p>

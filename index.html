@@ -7,74 +7,117 @@
   il n'y a qu'une seule page HTML, et le JavaScript (js/app.js) redessine la
   zone <main id="view"> selon l'écran affiché (accueil, parcours, leçon...).
 
-  Aucune étape de compilation : on ouvre simplement ce fichier dans un
-  navigateur, ou on le publie tel quel sur GitHub Pages.
+  STRUCTURE DE L'ÉCRAN (ordinateur)
+    ┌──────────┬────────────────────────────┬────────────┐
+    │ sidebar  │  topbar                    │   rail     │
+    │ (nav)    │  view (écran courant)      │ (streak,   │
+    │          │                            │  objectif) │
+    └──────────┴────────────────────────────┴────────────┘
+  Sur mobile : la sidebar devient une barre d'onglets en bas, le rail passe
+  dans l'accueil. Pendant une leçon, tout disparaît sauf la leçon (mode focus).
+
+  Aucune étape de compilation : on ouvre ce fichier ou on le publie tel quel
+  sur GitHub Pages.
   ============================================================================
 -->
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CodeStreak — Python & COBOL</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>CodeStreak</title>
+  <meta name="claude:viewport-fit-sides" content="cover">
   <meta name="description" content="Apprends Python et COBOL avec des leçons courtes, un streak quotidien et un tuteur IA.">
 
-  <!-- Police arrondie, dans l'esprit de Duolingo -->
+  <!-- Polices : Geist (interface), Geist Mono (code), Bricolage Grotesque (titres et chiffres) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <!-- ===== Barre du haut : logo + compteurs (streak, XP, gels) + boutons ===== -->
-  <header class="topbar">
-    <button class="logo" data-action="home" aria-label="Accueil">
-      <span class="logo-mark">&lt;/&gt;</span> <span class="logo-text">CodeStreak</span>
-    </button>
+  <div class="shell" id="shell">
 
-    <div class="stats" id="stats">
-      <!-- Rempli dynamiquement par app.js -> renderStats() -->
+    <!-- ===== Navigation latérale (ordinateur / tablette) ===== -->
+    <nav class="sidebar" aria-label="Navigation principale">
+      <button class="brand" data-action="home" aria-label="CodeStreak, accueil">
+        <span class="brand-mark"><i data-icon="flame" data-size="18"></i></span>
+        <span class="brand-name">CodeStreak</span>
+      </button>
+
+      <div class="nav-group">
+        <span class="nav-label">Apprendre</span>
+        <button class="nav-item" data-action="home" data-nav="home"><i data-icon="home"></i><span>Accueil</span></button>
+        <button class="nav-item" data-action="open-course" data-course="python" data-nav="python"><i data-icon="code"></i><span>Python</span></button>
+        <button class="nav-item" data-action="open-course" data-course="cobol" data-nav="cobol"><i data-icon="server"></i><span>COBOL</span></button>
+      </div>
+
+      <div class="nav-group">
+        <span class="nav-label">Outils</span>
+        <button class="nav-item" data-action="toggle-chat"><i data-icon="sparkles"></i><span>Tuteur IA</span></button>
+        <button class="nav-item" data-action="settings"><i data-icon="settings"></i><span>Réglages</span></button>
+      </div>
+
+      <!-- Mini-carte du streak en bas de la sidebar (remplie par app.js) -->
+      <div class="sidebar-foot" id="sidebar-streak"></div>
+    </nav>
+
+    <!-- ===== Colonne centrale ===== -->
+    <div class="main-col">
+      <header class="topbar">
+        <button class="brand brand-mobile" data-action="home" aria-label="Accueil">
+          <span class="brand-mark"><i data-icon="flame" data-size="16"></i></span>
+        </button>
+        <div class="crumb" id="crumb">Accueil</div>
+        <div class="stats" id="stats"><!-- rempli par renderStats() --></div>
+      </header>
+
+      <main id="view" class="view"></main>
     </div>
 
-    <div class="top-actions">
-      <button class="icon-btn" data-action="toggle-chat" title="Tuteur IA" aria-label="Ouvrir le tuteur IA">💬</button>
-      <button class="icon-btn" data-action="settings" title="Réglages" aria-label="Réglages">⚙️</button>
-    </div>
-  </header>
+    <!-- ===== Rail de droite : streak, objectif du jour ===== -->
+    <aside class="rail" id="rail" aria-label="Ta progression"></aside>
+  </div>
 
-  <!-- ===== Zone principale : chaque "écran" est injecté ici ===== -->
-  <main id="view" class="view"></main>
+  <!-- ===== Barre d'onglets (mobile) ===== -->
+  <nav class="tabbar" aria-label="Navigation">
+    <button data-action="home" data-nav="home"><i data-icon="home"></i><span>Accueil</span></button>
+    <button data-action="open-course" data-course="python" data-nav="python"><i data-icon="code"></i><span>Python</span></button>
+    <button data-action="open-course" data-course="cobol" data-nav="cobol"><i data-icon="server"></i><span>COBOL</span></button>
+    <button data-action="toggle-chat"><i data-icon="sparkles"></i><span>Tuteur</span></button>
+    <button data-action="settings"><i data-icon="settings"></i><span>Réglages</span></button>
+  </nav>
 
-  <!-- ===== Panneau latéral du chat IA ===== -->
+  <!-- ===== Panneau du tuteur IA ===== -->
   <aside id="chat" class="chat" aria-label="Tuteur IA" hidden>
     <div class="chat-head">
-      <div>
+      <span class="chat-avatar"><i data-icon="sparkles" data-size="18"></i></span>
+      <div class="chat-title">
         <strong>Tuteur IA</strong>
-        <small id="chat-context">Pose-moi tes questions sur Python ou COBOL</small>
+        <small id="chat-context">Python et COBOL</small>
       </div>
-      <button class="icon-btn" data-action="toggle-chat" aria-label="Fermer">✕</button>
+      <button class="icon-btn" data-action="toggle-chat" aria-label="Fermer le tuteur"><i data-icon="x"></i></button>
     </div>
     <div class="chat-log" id="chat-log"></div>
     <form class="chat-form" id="chat-form">
-      <textarea id="chat-input" rows="2" placeholder="Ex. : c'est quoi la différence entre une liste et un tuple ?"></textarea>
-      <button class="btn btn-blue" type="submit">Envoyer</button>
+      <label for="chat-input" class="sr-only">Ton message</label>
+      <textarea id="chat-input" rows="1" placeholder="Pose ta question…"></textarea>
+      <button class="send-btn" type="submit" aria-label="Envoyer"><i data-icon="send" data-size="18"></i></button>
     </form>
   </aside>
 
-  <!-- ===== Fenêtre modale (réglages, messages) ===== -->
+  <!-- ===== Fenêtre modale (réglages) ===== -->
   <div id="modal" class="modal" hidden></div>
 
-  <!-- Prism (cœur + langages). "manual" = on déclenche nous-mêmes la coloration. -->
+  <!-- Prism (coloration syntaxique). "manual" = on déclenche nous-mêmes la coloration. -->
   <script>window.Prism = { manual: true };</script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cobol.min.js"></script>
 
-  <!--
-    Ordre de chargement important : les fichiers de données (leçons) et les
-    modules utilitaires d'abord, puis app.js qui les utilise tous.
-  -->
+  <!-- Ordre important : utilitaires et données d'abord, app.js en dernier. -->
+  <script src="js/icons.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/lessons/python.js"></script>
   <script src="js/lessons/cobol.js"></script>

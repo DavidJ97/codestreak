@@ -18,7 +18,7 @@ window.COURSES = window.COURSES || {};
 window.COURSES.cobol = {
   id: "cobol",
   name: "COBOL",
-  badge: "🏦",
+  badge: "server",
   language: "cobol",
   runnable: false, // pas d'exécution dans le navigateur : on propose l'IA pour "simuler"
   tagline: "Le langage des banques et des mainframes : rare, recherché, toujours en production.",
@@ -27,7 +27,7 @@ window.COURSES.cobol = {
     {
       id: "cb-intro",
       title: "Introduction",
-      icon: "👋",
+      icon: "book-open",
       theory: `
         <h2>Qu'est-ce que le COBOL ?</h2>
         <p><b>COBOL</b> = <i>COmmon Business-Oriented Language</i>. Créé en 1959 par un comité (CODASYL)
@@ -40,7 +40,7 @@ window.COURSES.cobol = {
           <li>Peu de développeurs le maîtrisent : c'est une compétence <b>rare et bien payée</b>.</li>
         </ul>
         <p>Voici le traditionnel « Bonjour le monde ». <code>DISPLAY</code> affiche, <code>STOP RUN</code> termine le programme.</p>
-        <div class="tip">💡 Pour exécuter du COBOL chez toi : installe <b>GnuCOBOL</b> puis
+        <div class="tip">Pour exécuter du COBOL chez toi : installe <b>GnuCOBOL</b> puis
         <code>cobc -x bonjour.cbl && ./bonjour</code>. Ici, tu peux demander à l'IA de simuler l'exécution.</div>`,
       example: `       IDENTIFICATION DIVISION.
        PROGRAM-ID. BONJOUR.
@@ -65,7 +65,7 @@ window.COURSES.cobol = {
     {
       id: "cb-structure",
       title: "Les 4 divisions",
-      icon: "🏛️",
+      icon: "columns",
       theory: `
         <h2>Un programme en 4 parties</h2>
         <p>Tout programme COBOL est découpé en <b>divisions</b>, toujours dans cet ordre :</p>
@@ -107,7 +107,7 @@ window.COURSES.cobol = {
     {
       id: "cb-format",
       title: "Format des colonnes",
-      icon: "📏",
+      icon: "ruler",
       theory: `
         <h2>Héritage des cartes perforées</h2>
         <p>Le COBOL "classique" utilise un <b>format fixe</b> de 80 colonnes, hérité des cartes perforées :</p>
@@ -144,7 +144,7 @@ window.COURSES.cobol = {
     {
       id: "cb-data",
       title: "Variables et niveaux",
-      icon: "📦",
+      icon: "box",
       theory: `
         <h2>WORKING-STORAGE et numéros de niveau</h2>
         <p>Les variables "de travail" se déclarent dans la <code>WORKING-STORAGE SECTION</code> de la DATA DIVISION.
@@ -188,7 +188,7 @@ window.COURSES.cobol = {
     {
       id: "cb-pic",
       title: "La clause PIC",
-      icon: "🖼️",
+      icon: "frame",
       theory: `
         <h2>Décrire la forme d'une donnée</h2>
         <p><code>PIC</code> (PICTURE) décrit précisément le type et la taille d'une variable :</p>
@@ -234,7 +234,7 @@ window.COURSES.cobol = {
     {
       id: "cb-display",
       title: "DISPLAY et ACCEPT",
-      icon: "⌨️",
+      icon: "terminal",
       theory: `
         <h2>Entrées / sorties console</h2>
         <p><code>DISPLAY</code> affiche une ou plusieurs valeurs collées les unes aux autres :
@@ -270,7 +270,7 @@ window.COURSES.cobol = {
     {
       id: "cb-move",
       title: "MOVE",
-      icon: "➡️",
+      icon: "move",
       theory: `
         <h2>Copier des valeurs</h2>
         <p>En COBOL, on n'écrit pas <code>x = 5</code> : on écrit <code>MOVE 5 TO X</code>.
@@ -312,7 +312,7 @@ window.COURSES.cobol = {
     {
       id: "cb-arith",
       title: "Calculs",
-      icon: "🧮",
+      icon: "calculator",
       theory: `
         <h2>ADD, SUBTRACT, MULTIPLY, DIVIDE, COMPUTE</h2>
         <ul>
@@ -357,7 +357,7 @@ window.COURSES.cobol = {
     {
       id: "cb-if",
       title: "IF et EVALUATE",
-      icon: "🔀",
+      icon: "branch",
       theory: `
         <h2>Conditions</h2>
         <p><code>IF condition ... ELSE ... END-IF</code>. Les comparaisons peuvent s'écrire en symboles
@@ -365,7 +365,7 @@ window.COURSES.cobol = {
         On combine avec <code>AND</code>, <code>OR</code>, <code>NOT</code>.</p>
         <p><code>EVALUATE</code> est l'équivalent du <i>switch/case</i> (ou du <i>match</i> de Python) :</p>
         <p><code>EVALUATE TRUE WHEN cond1 ... WHEN cond2 ... WHEN OTHER ... END-EVALUATE</code></p>
-        <div class="tip">💡 Toujours fermer avec <code>END-IF</code> / <code>END-EVALUATE</code> : c'est plus sûr que de compter sur le point final.</div>`,
+        <div class="tip">Toujours fermer avec <code>END-IF</code> / <code>END-EVALUATE</code> : c'est plus sûr que de compter sur le point final.</div>`,
       example: `       IDENTIFICATION DIVISION.
        PROGRAM-ID. CONDITIONS.
        DATA DIVISION.
@@ -404,7 +404,7 @@ window.COURSES.cobol = {
     {
       id: "cb-perform",
       title: "Boucles PERFORM",
-      icon: "🔁",
+      icon: "repeat",
       theory: `
         <h2>PERFORM : appeler et répéter</h2>
         <ul>
@@ -446,12 +446,12 @@ window.COURSES.cobol = {
     {
       id: "cb-tables",
       title: "Tableaux (OCCURS)",
-      icon: "🗂️",
+      icon: "table",
       theory: `
         <h2>Les tableaux en COBOL</h2>
         <p>Un tableau se déclare avec <code>OCCURS n TIMES</code> sur un niveau 02 à 49 (jamais sur un 01).</p>
         <p>On accède à un élément avec un <b>indice entre parenthèses</b> : <code>WS-MOIS(3)</code>.
-        ⚠️ Les indices commencent à <b>1</b> (et non 0 comme en Python).</p>
+        Les indices commencent à <b>1</b> (et non 0 comme en Python).</p>
         <p><code>INDEXED BY</code> crée un index optimisé, utilisé avec <code>SET</code> et <code>SEARCH</code> pour chercher dans le tableau.</p>`,
       example: `       IDENTIFICATION DIVISION.
        PROGRAM-ID. TABLEAUX.
@@ -484,7 +484,7 @@ window.COURSES.cobol = {
     {
       id: "cb-strings",
       title: "Chaînes de caractères",
-      icon: "🔤",
+      icon: "type",
       theory: `
         <h2>STRING, UNSTRING, INSPECT</h2>
         <ul>
@@ -530,7 +530,7 @@ window.COURSES.cobol = {
     {
       id: "cb-files",
       title: "Fichiers séquentiels",
-      icon: "🗄️",
+      icon: "file",
       theory: `
         <h2>Lire et écrire des fichiers</h2>
         <p>Le traitement de fichiers est le cœur du COBOL "batch". Il faut 3 étapes :</p>

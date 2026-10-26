@@ -3,7 +3,7 @@
    ----------------------------------------------------------------------------
    COMMENT ÇA MARCHE
    - L'app est 100 % statique (pas de serveur). Le navigateur appelle donc
-     directement l'API d'Anthropic avec TA clé API, saisie dans ⚙️ Réglages.
+     directement l'API d'Anthropic avec TA clé API, saisie dans Réglages.
    - La clé reste dans le localStorage de ton navigateur : elle n'est envoyée
      qu'à api.anthropic.com. Ne publie jamais ta clé dans le code du repo !
    - L'en-tête "anthropic-dangerous-direct-browser-access" est obligatoire
@@ -69,7 +69,7 @@ const Chat = (() => {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       const detail = data.error?.message || res.statusText;
-      if (res.status === 401) throw new Error("Clé API invalide. Vérifie-la dans ⚙️ Réglages.");
+      if (res.status === 401) throw new Error("Clé API invalide. Vérifie-la dans Réglages.");
       throw new Error(`Erreur ${res.status} : ${detail}`);
     }
     // La réponse est une liste de blocs ; on concatène les blocs texte
@@ -112,11 +112,27 @@ const Chat = (() => {
   function showWelcome() {
     if (logEl().children.length) return;
     addMessage("assistant",
-      "Salut ! 👋 Je suis ton tuteur. Pose-moi une question sur **Python** ou **COBOL**, " +
+      "Salut ! Je suis ton tuteur. Pose-moi une question sur **Python** ou **COBOL**, " +
       "demande-moi d'expliquer un exemple, ou de corriger ton code.");
     if (!hasKey()) {
-      addMessage("system", "Pour discuter, ajoute ta clé API Anthropic dans ⚙️ Réglages (console.anthropic.com).");
+      addMessage("system", "Pour discuter, ajoute ta clé API Anthropic dans Réglages (console.anthropic.com).");
     }
+    // Suggestions cliquables : on n'a pas à trouver quoi demander
+    const box = document.createElement("div");
+    box.className = "suggestions";
+    [
+      "Quelle différence entre une liste et un tuple ?",
+      "Que signifie PIC 9(5)V99 en COBOL ?",
+      "Donne-moi un mini-exercice de niveau débutant",
+    ].forEach((s) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "suggestion";
+      b.textContent = s;
+      b.addEventListener("click", () => { box.remove(); send(s); });
+      box.appendChild(b);
+    });
+    logEl().appendChild(box);
   }
 
   /* ---------------- Envoi d'un message ---------------- */
@@ -130,7 +146,7 @@ const Chat = (() => {
     open();
 
     if (!hasKey()) {
-      addMessage("system", "Ajoute d'abord ta clé API dans ⚙️ Réglages.");
+      addMessage("system", "Ajoute d'abord ta clé API dans Réglages.");
       App.openSettings();
       return;
     }
@@ -150,7 +166,7 @@ const Chat = (() => {
     } catch (err) {
       typing.remove();
       history.pop(); // on retire la question restée sans réponse pour garder un historique valide
-      addMessage("system", "⚠️ " + err.message);
+      addMessage("system", err.message);
     } finally {
       busy = false;
       logEl().scrollTop = logEl().scrollHeight;

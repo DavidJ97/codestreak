@@ -19,7 +19,7 @@ window.COURSES.uxai = {
   id: "uxai",
   group: "ia",
   name: "UX/UI de l'IA",
-  badge: "sparkles",
+  badge: "pen",
   color: { light: "#d6336c", dark: "#f06595" },
   language: "markup",
   run: "preview",              // les exemples HTML s'affichent en aperçu
@@ -263,6 +263,73 @@ window.COURSES.uxai = {
         { type: "mcq", q: "Quelle pratique aide à atténuer les biais (HAX G6) ?",
           choices: ["Tester seulement en anglais", "Tester avec des profils, noms et dialectes variés", "Cacher le bouton de signalement", "Ne rien mesurer"], answer: 1,
           explain: "Les biais se découvrent en testant la diversité réelle des utilisateurs." },
+      ],
+    },
+
+    /* ------------------------------------------------------------------ */
+    {
+      id: "ux-genui",
+      title: "Interfaces génératives et multimodales",
+      icon: "wand",
+      theory: `
+        <h2>2027–2030 : l'interface se compose à la demande</h2>
+        <p>Les assistants ne répondent plus seulement en texte : ils <b>choisissent et remplissent des composants</b>
+        (carte, tableau, formulaire, graphique) adaptés à la demande. C'est ce qu'on appelle l'<b>interface générative</b>.</p>
+        <ul>
+          <li><b>Contraindre l'IA au design system.</b> Le modèle choisit dans un catalogue de composants approuvés et
+          utilise les <b>design tokens</b> (couleurs, espacements, typo) ; il n'invente pas de styles. C'est ce qui garantit
+          la cohérence de marque et l'accessibilité.</li>
+          <li><b>Tokens portables.</b> Le format JSON du W3C Design Tokens Community Group permet de partager les mêmes tokens
+          entre Figma, le code et les outils d'IA.</li>
+          <li><b>Interfaces dans les assistants.</b> La spécification MCP du 28 juillet 2026 ajoute l'extension
+          <b>MCP Apps</b> : un serveur peut fournir une interface qui s'affiche directement dans un client d'IA.</li>
+          <li><b>Multimodal.</b> Voix : afficher la transcription et permettre d'interrompre l'IA en parlant.
+          Vision : montrer ce que l'IA a « vu » (zone détectée, image analysée). Toujours une alternative en texte.</li>
+          <li><b>Accessibilité.</b> WCAG 2.2 niveau AA reste la référence. WCAG 3.0 est encore un brouillon de travail
+          (version de mars 2026) ; la recommandation finale n'est pas attendue avant 2028.</li>
+        </ul>
+        <div class="tip">Dans l'exemple, la carte est « générée » mais ne fait qu'assembler des composants et des tokens
+        existants : change la valeur de <code>--accent</code> et tout suit.</div>`,
+      example: `<style>
+  :root { --accent: #c2338a; --radius: 14px; --space: 12px; --font: system-ui; }
+  .card { font: 15px/1.5 var(--font); max-width: 440px; border: 1px solid #ddd; border-radius: var(--radius); padding: calc(var(--space) * 1.5); }
+  .card h3 { margin: 0 0 var(--space); font-size: 17px; }
+  .row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #eee; }
+  .src { margin-top: var(--space); font-size: 12px; color: #666; }
+  .src a { color: var(--accent); }
+  .actions { display: flex; gap: 8px; margin-top: var(--space); }
+  .actions button { border-radius: 999px; padding: 6px 12px; border: 1px solid var(--accent); background: #fff; color: var(--accent); }
+  .actions .main { background: var(--accent); color: #fff; }
+</style>
+<!-- Composant "Comparaison" choisi par l'IA dans le catalogue -->
+<section class="card" aria-label="Comparaison de forfaits">
+  <h3>Deux forfaits correspondent à ta demande</h3>
+  <div class="row"><span>Essentiel</span><b>12 $ / mois</b></div>
+  <div class="row"><span>Pro</span><b>29 $ / mois</b></div>
+  <p class="src">Source : <a href="#">grille tarifaire, mise à jour le 1er octobre</a></p>
+  <div class="actions">
+    <button class="main">Choisir Essentiel</button>
+    <button>Voir les détails</button>
+  </div>
+</section>`,
+      sources: [
+        { title: "Model Context Protocol — spécification 2026-07-28 (blogue officiel)", url: "https://blog.modelcontextprotocol.io/tags/protocol/" },
+        { title: "W3C Design Tokens Community Group", url: "https://www.designtokens.org/" },
+        { title: "W3C — WCAG 2.2", url: "https://www.w3.org/TR/WCAG22/" },
+        { title: "W3C — WCAG 3.0 (brouillon de travail)", url: "https://www.w3.org/TR/wcag-3.0/" },
+      ],
+      exercises: [
+        { type: "mcq", q: "Pourquoi limiter une interface générative au design system ?",
+          choices: ["Pour réduire la facture d'API", "Pour garantir cohérence et accessibilité", "Parce que l'IA ne sait pas écrire du CSS", "Pour cacher les sources"], answer: 1,
+          explain: "Le modèle assemble des composants déjà testés (contraste, focus, lecteurs d'écran) au lieu d'inventer des styles." },
+        { type: "fill", q: "Quelle version de WCAG est la référence en 2026 ?", code: `WCAG 2.___ niveau AA`, answers: ["2"],
+          explain: "WCAG 2.2 AA ; WCAG 3.0 est encore un brouillon." },
+        { type: "mcq", q: "Dans une interface vocale, que faut-il toujours offrir ?",
+          choices: ["Une musique d'attente", "Une transcription ou une alternative en texte", "Une voix plus rapide", "Rien de plus"], answer: 1,
+          explain: "La transcription aide à vérifier ce que l'IA a compris et rend l'échange accessible." },
+        { type: "mcq", q: "Que permet l'extension MCP Apps ?",
+          choices: ["Entraîner un modèle", "Afficher une interface fournie par un serveur dans un client d'IA", "Chiffrer les prompts", "Remplacer HTML"], answer: 1,
+          explain: "Ajoutée avec la spécification 2026-07-28, avec l'extension Tasks pour les travaux longs." },
       ],
     },
   ],

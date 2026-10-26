@@ -16,7 +16,7 @@ window.COURSES.linguist = {
   id: "linguist",
   group: "ia",
   name: "AI Linguist",
-  badge: "type",
+  badge: "globe",
   color: { light: "#0c8599", dark: "#3bc9db" },
   language: "python",
   run: "python",
@@ -64,6 +64,75 @@ for cle, valeur in annotation.items():
         { type: "mcq", q: "Pourquoi les langues peu dotées sont-elles une opportunité ?",
           choices: ["Elles sont plus faciles", "Les modèles y sont moins bons et les experts rares", "Elles n'ont pas de grammaire", "Elles ne s'écrivent pas"], answer: 1,
           explain: "Moins de données d'entraînement = plus de besoins d'évaluation et d'annotation experte." },
+      ],
+    },
+
+    /* ------------------------------------------------------------------ */
+    {
+      id: "al-tokens",
+      title: "Tokens et langues",
+      icon: "type",
+      theory: `
+        <h2>Toutes les langues ne coûtent pas le même prix</h2>
+        <p>Les LLM découpent le texte en <b>tokens</b> avec un algorithme comme le <b>BPE</b> (Byte-Pair Encoding) :
+        on part des caractères, puis on fusionne encore et encore la paire la plus fréquente du corpus d'entraînement.</p>
+        <ul>
+          <li>Les mots fréquents (souvent en anglais) deviennent un seul token.</li>
+          <li>Une langue moins présente dans les données (créole haïtien, langues autochtones…) est découpée en
+          <b>plus de morceaux</b> : c'est la <b>fertilité</b> (tokens par mot).</li>
+          <li>Plus de tokens = <b>plus cher</b>, <b>moins de texte</b> dans la fenêtre de contexte, et souvent une qualité moindre.</li>
+          <li>La <b>normalisation Unicode</b> compte : « é » peut être un caractère (NFC) ou « e » + accent (NFD),
+          et l'apostrophe typographique ’ n'est pas l'apostrophe droite '. Le découpage change.</li>
+        </ul>
+        <div class="tip">Mesurer la fertilité d'un tokenizer sur une langue est une analyse simple et très parlante pour un portfolio d'AI linguist.</div>`,
+      example: `from collections import Counter
+import unicodedata
+
+# Mini BPE : chaque mot est une suite de symboles
+corpus = ["lekòl", "lekòl", "lekòl", "lakay", "lakay", "lavi"]
+mots = [list(m) for m in corpus]
+
+def paire_frequente(mots):
+    paires = Counter()
+    for m in mots:
+        for a, b in zip(m, m[1:]):
+            paires[(a, b)] += 1
+    return paires.most_common(1)[0][0]
+
+def fusionner(mots, paire):
+    nouveaux = []
+    for m in mots:
+        i, sortie = 0, []
+        while i < len(m):
+            if i < len(m) - 1 and (m[i], m[i + 1]) == paire:
+                sortie.append(m[i] + m[i + 1]); i += 2
+            else:
+                sortie.append(m[i]); i += 1
+        nouveaux.append(sortie)
+    return nouveaux
+
+for etape in range(3):
+    p = paire_frequente(mots)
+    mots = fusionner(mots, p)
+    print(f"Fusion {etape + 1} : {p} → {sorted(set(map(tuple, mots)))}")
+
+# Normalisation : même apparence, longueurs différentes
+nfc = unicodedata.normalize("NFC", "é")
+nfd = unicodedata.normalize("NFD", "é")
+print("NFC :", len(nfc), "caractère(s) / NFD :", len(nfd))`,
+      sources: [
+        { title: "Hugging Face LLM Course — Byte-Pair Encoding tokenization", url: "https://huggingface.co/learn/llm-course/chapter6/5" },
+        { title: "Unicode — UAX #15 Normalization Forms", url: "https://unicode.org/reports/tr15/" },
+      ],
+      exercises: [
+        { type: "mcq", q: "Que fait le BPE à chaque étape ?",
+          choices: ["Supprime les accents", "Fusionne la paire de symboles la plus fréquente", "Traduit en anglais", "Coupe à chaque espace"], answer: 1,
+          explain: "Les fusions successives forment le vocabulaire de sous-mots." },
+        { type: "mcq", q: "Une fertilité élevée (beaucoup de tokens par mot) signifie…",
+          choices: ["Un texte moins cher", "Plus de coût et moins de place dans le contexte", "Une meilleure qualité", "Aucune différence"], answer: 1,
+          explain: "C'est un enjeu d'équité entre les langues." },
+        { type: "fill", q: "Normalise le texte en forme composée :", code: `unicodedata.normalize("___", texte)`, answers: ["NFC"],
+          explain: "NFC compose les caractères accentués ; NFD les décompose." },
       ],
     },
 

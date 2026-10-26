@@ -18,7 +18,7 @@ window.COURSES.aieng = {
   id: "aieng",
   group: "ia",
   name: "AI Engineering",
-  badge: "function",
+  badge: "cpu",
   color: { light: "#7048e8", dark: "#9775fa" },
   language: "python",
   run: "python",
@@ -296,6 +296,72 @@ for cas, ok in zip(jeu_eval, resultats):
         { type: "mcq", q: "Plutôt beaucoup de cas notés automatiquement, ou peu de cas notés à la main ?",
           choices: ["Beaucoup de cas automatiques", "Peu de cas à la main", "Aucun cas", "Seulement des cas faciles"], answer: 0,
           explain: "Le volume donne un signal stable ; la notation humaine sert à calibrer." },
+      ],
+    },
+
+    /* ------------------------------------------------------------------ */
+    {
+      id: "ae-prod",
+      title: "Context engineering et production",
+      icon: "gauge",
+      theory: `
+        <h2>Du prototype à l'app qui tient la charge</h2>
+        <p><b>Le contexte est une ressource limitée.</b> Plus on remplit la fenêtre de contexte, plus l'attention du modèle se dilue.
+        Le <b>context engineering</b> consiste à fournir le plus petit ensemble d'informations utiles à chaque étape :</p>
+        <ul>
+          <li>un prompt système clair, des <b>outils peu nombreux</b> et sans ambiguïté, quelques exemples bien choisis ;</li>
+          <li>la récupération <b>juste à temps</b> (chercher un document quand il devient utile, au lieu de tout charger) ;</li>
+          <li>la <b>compaction</b> : résumer l'historique ancien et garder les derniers échanges ;</li>
+          <li>des <b>notes externes</b> (fichier, base) pour les longues tâches d'agent.</li>
+        </ul>
+        <p><b>En production</b>, on ajoute :</p>
+        <ul>
+          <li><b>Mise en cache du prompt</b> pour les longs préfixes répétés (moins cher, plus rapide).</li>
+          <li><b>Routage</b> : un petit modèle rapide pour les tâches simples, un grand pour le raisonnement.</li>
+          <li><b>Réessais avec délai exponentiel</b> (et un peu d'aléatoire) sur les erreurs de surcharge ou de limite de débit.</li>
+          <li><b>Quotas par utilisateur</b> contre la consommation non bornée (OWASP LLM10).</li>
+          <li><b>Observabilité</b> : tracer prompt, outils appelés, latence, coût et résultat des evals à chaque requête.</li>
+        </ul>`,
+      example: `import random
+
+# 1. Compaction : un résumé + les 5 derniers messages
+#    (le résumé "user" est suivi d'un message "assistant" : les rôles alternent toujours)
+historique = [{"role": "user" if i % 2 == 0 else "assistant", "content": f"message {i}"} for i in range(12)]
+
+def compacter(messages, garder=5):
+    anciens, recents = messages[:-garder], messages[-garder:]
+    resume = f"Résumé de {len(anciens)} messages précédents."
+    return [{"role": "user", "content": resume}] + recents
+
+compact = compacter(historique)
+print(len(historique), "messages →", len(compact))
+for m in compact:
+    print(" ", m["role"], ":", m["content"])
+
+# 2. Réessais avec délai exponentiel + aléatoire (jitter)
+random.seed(1)
+base = 0.5  # secondes
+for tentative in range(5):
+    delai = base * 2 ** tentative
+    attente = delai + random.uniform(0, delai / 2)
+    print(f"Tentative {tentative + 1} : attendre {attente:.2f} s")`,
+      sources: [
+        { title: "Anthropic — Effective context engineering for AI agents", url: "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" },
+        { title: "Claude Docs — Prompt caching", url: "https://docs.claude.com/en/docs/build-with-claude/prompt-caching" },
+        { title: "OWASP — Top 10 for LLM Applications 2025 (LLM10 Unbounded Consumption)", url: "https://genai.owasp.org/llm-top-10/" },
+      ],
+      exercises: [
+        { type: "mcq", q: "Pourquoi ne pas mettre « tout » dans le contexte ?",
+          choices: ["C'est interdit par l'API", "L'attention du modèle se dilue et le coût augmente", "Le modèle refuse les longs textes", "Ça n'a aucun effet"], answer: 1,
+          explain: "Le contexte est une ressource finie : viser les tokens à fort signal." },
+        { type: "fill", q: "Complète la formule du délai exponentiel :", code: `delai = base * 2 ** ___`, answers: ["tentative"],
+          explain: "Le délai double à chaque tentative : 0,5 s, 1 s, 2 s, 4 s…" },
+        { type: "mcq", q: "Quel est l'intérêt de la mise en cache du prompt ?",
+          choices: ["Réduire coût et latence sur un long préfixe répété", "Rendre le modèle plus créatif", "Chiffrer les données", "Augmenter max_tokens"], answer: 0,
+          explain: "Le préfixe déjà traité (consignes, documents) est réutilisé d'un appel à l'autre." },
+        { type: "order", q: "Remets la compaction dans l'ordre :",
+          lines: ["Séparer anciens et récents messages", "Résumer les anciens messages", "Envoyer le résumé suivi des messages récents"],
+          explain: "On garde le fil de la conversation en économisant le contexte." },
       ],
     },
   ],

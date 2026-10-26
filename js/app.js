@@ -704,6 +704,18 @@ const App = (() => {
       tip.innerHTML = `${icon("info", 18)}<div>${tip.innerHTML}</div>`;
     });
 
+    // Illustration interactive de la leçon (js/visuals.js + js/viz.js),
+    // placée juste après le premier titre, comme une « scène » à manipuler.
+    const scene = (window.VISUALS || {})[lesson.id];
+    if (scene && window.Viz) {
+      const box = document.createElement("section");
+      box.className = "viz cs";
+      box.setAttribute("style", `--cl:${course.color ? course.color.light : ""};--cd:${course.color ? course.color.dark : ""}`);
+      const h2 = view.querySelector(".theory h2");
+      if (h2) h2.after(box); else view.querySelector(".theory").prepend(box);
+      Viz.mount(box, scene);
+    }
+
     document.getElementById("code-view").addEventListener("click", switchToEditor);
   }
 

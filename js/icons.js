@@ -29,6 +29,7 @@ const ICONS = {
   "x-circle": '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/>',
   star: '<path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/>',
   "arrow-right": '<path d="M5 12h14M13 5l7 7-7 7"/>',
+  "arrow-down": '<path d="M12 5v14M5 13l7 7 7-7"/>',
   "arrow-left": '<path d="M19 12H5M11 19l-7-7 7-7"/>',
   send: '<path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4z"/>',
   trophy: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>',

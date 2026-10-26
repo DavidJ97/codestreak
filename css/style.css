@@ -276,7 +276,7 @@ code { font-family: var(--mono); font-size: .88em; background: var(--surface-2);
 
 /* Anneau de progression (SVG) */
 .ring { position: relative; display: grid; place-items: center; }
-.ring svg { transform: rotate(-90deg); }
+.ring > svg { transform: rotate(-90deg); }
 .ring .track { stroke: var(--surface-2); }
 .ring .value { transition: stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1); }
 .ring .ring-label { position: absolute; text-align: center; line-height: 1.1; }
@@ -532,7 +532,7 @@ code { font-family: var(--mono); font-size: .88em; background: var(--surface-2);
 .reward { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: var(--flame-soft); color: var(--flame-b); font-weight: 600; font-size: .88rem; }
 .reward.ice { background: color-mix(in srgb, var(--ice) 15%, var(--surface)); color: var(--ice); }
 .reward.goal { background: var(--good-soft); color: var(--good); }
-.hero-flame { color: var(--flame-b); animation: pop .7s cubic-bezier(.2,.9,.3,1.4); }
+.hero-flame, .result-ring .ring-label .hero-flame { color: var(--flame-b); animation: pop .7s cubic-bezier(.2,.9,.3,1.4); }
 @keyframes pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes rise { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
 

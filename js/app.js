@@ -365,6 +365,39 @@ const App = (() => {
       </button>`;
   }
 
+  /**
+   * Carte "métier visé" : relie un poste à ses cours et à ses projets,
+   * avec l'avancement moyen des projets recommandés.
+   */
+  function careerCard(job) {
+    const projects = job.projects.map(findProject).filter(Boolean);
+    const pct = projects.length ? Math.round(projects.reduce((a, p) => a + Projects.pct(p), 0) / projects.length) : 0;
+    const courses = job.courses.map((id) => window.COURSES[id]).filter(Boolean);
+    return `
+      <article class="career">
+        <div class="career-head">
+          <span class="career-ico">${icon(job.icon, 22)}</span>
+          <div style="min-width:0">
+            <h3>${job.title}</h3>
+            <p>${job.pitch}</p>
+          </div>
+        </div>
+        <div class="career-block">
+          <span class="eyebrow">Ce que regardent les recruteurs</span>
+          <ul>${job.recruiters.map((r) => `<li>${icon("check", 14)}${r}</li>`).join("")}</ul>
+        </div>
+        <div class="career-block">
+          <span class="eyebrow">Cours</span>
+          <div class="chips">${courses.map((c) => `<button class="chip link cs cc-chip" ${cs(c)} data-action="open-course" data-course="${c.id}">${icon(c.badge, 13)}${c.name}</button>`).join("")}</div>
+        </div>
+        <div class="career-block">
+          <span class="eyebrow">Projets à publier</span>
+          <div class="chips">${projects.map((p) => `<button class="chip link${Projects.pct(p) === 100 ? " done" : ""}" data-action="open-project" data-project="${p.id}">${icon(Projects.pct(p) === 100 ? "check" : "folder", 13)}${escapeHtml(p.title)}</button>`).join("")}</div>
+        </div>
+        <div class="course-foot"><div class="bar"><span style="width:${pct}%"></span></div><span>${pct}%</span></div>
+      </article>`;
+  }
+
   function renderProjects() {
     session = null;
     Chat.setContext(null, null);
@@ -377,6 +410,10 @@ const App = (() => {
         <p>Chaque projet devient un dépôt GitHub : code testé, README clair, résultats chiffrés.
         Les recruteurs regardent ce que tu as livré, comment tu l'as évalué et ce qui a cassé en route.</p>
       </header>
+      <section style="margin-top:28px">
+        <div class="section-head"><h2>Métiers visés</h2><span class="eyebrow">${(window.CAREERS || []).length} parcours</span></div>
+        <div class="careers">${(window.CAREERS || []).map(careerCard).join("")}</div>
+      </section>
       ${groups.map((c) => `
         <section style="margin-top:28px">
           <div class="section-head"><h2>${c.name}</h2><span class="eyebrow">${c.projects.length} projets</span></div>

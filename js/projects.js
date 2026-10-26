@@ -339,3 +339,49 @@
     },
   ];
 })();
+
+/* ============================================================================
+   MÉTIERS VISÉS
+   ----------------------------------------------------------------------------
+   Chaque métier relie des cours et des projets : c'est le "plan d'embauche".
+   L'écran Projets affiche l'avancement de chaque métier (projets terminés
+   sur projets recommandés). Les attentes viennent d'offres d'emploi 2026
+   et des cadres cités dans les cours (OWASP, NIST, HAX, docs Claude).
+   ========================================================================== */
+window.CAREERS = [
+  {
+    id: "ai-engineer", title: "AI Engineer", icon: "cpu",
+    pitch: "Construit des produits sur des LLM : RAG, agents, MCP, évaluations, mise en production.",
+    recruiters: ["Une app LLM en ligne avec des evals chiffrées", "Un serveur MCP ou un agent avec garde-fous", "Du Python testé avec CI"],
+    courses: ["python", "aieng", "aisec"],
+    projects: ["py-p2", "ae-p1", "ae-p2", "ae-p3"],
+  },
+  {
+    id: "ai-designer", title: "Designer UX/UI de l'IA", icon: "pen",
+    pitch: "Conçoit des interfaces où l'IA est fiable, contrôlable et accessible : assistants, agents, interfaces génératives.",
+    recruiters: ["Une étude de cas avec recherche, prototypes et résultats de tests", "Des composants accessibles (WCAG 2.2 AA)", "La maîtrise des patterns de confiance et d'approbation"],
+    courses: ["uxai", "aieng"],
+    projects: ["ux-p1", "ux-p2", "ae-p1"],
+  },
+  {
+    id: "ai-linguist", title: "AI Linguist", icon: "globe",
+    pitch: "Évalue et améliore la langue des modèles : guides d'annotation, benchmarks, multilinguisme, données d'entraînement.",
+    recruiters: ["Un jeu de données publié avec guide et accord inter-annotateurs", "Un benchmark dans une langue peu dotée", "Python, JSONL et pandas"],
+    courses: ["linguist", "python", "aieng"],
+    projects: ["al-p1", "al-p2", "py-p3"],
+  },
+  {
+    id: "ai-security", title: "Sécurité de l'IA", icon: "shield-alert",
+    pitch: "Attaque et protège les systèmes d'IA : injection de prompt, agents, chaîne d'approvisionnement, gouvernance.",
+    recruiters: ["Un rapport de red team relié à l'OWASP Top 10 LLM", "Une passerelle qui limite les droits d'un agent", "La connaissance de NIST AI RMF, AI Act et Loi 25"],
+    courses: ["aisec", "aieng", "python"],
+    projects: ["as-p1", "as-p2", "ae-p2"],
+  },
+  {
+    id: "mainframe", title: "Développeur COBOL et modernisation", icon: "server",
+    pitch: "Maintient et modernise les systèmes centraux des banques, assurances et gouvernements.",
+    recruiters: ["Un batch COBOL compilé en CI", "Une modernisation documentée avec tests d'équivalence", "Des badges IBM Z Xplore (gratuits)"],
+    courses: ["cobol", "python"],
+    projects: ["cb-p1", "cb-p2", "py-p2"],
+  },
+];

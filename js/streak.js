@@ -104,20 +104,37 @@ const Streak = (() => {
    * @returns {{xp:number, streakExtended:boolean, goalReached:boolean, freezeEarned:boolean}}
    */
   function completeLesson(lessonId, perfect) {
-    const today = todayKey();
     const firstTime = !state.completed[lessonId];
 
-    // 1. XP gagnés
-    const xp = firstTime ? 10 + (perfect ? 5 : 0) : 5;
+    // Progression de la leçon
+    const prev = state.completed[lessonId] || { perfect: false, times: 0 };
+    state.completed[lessonId] = { perfect: prev.perfect || perfect, times: prev.times + 1 };
+
+    return recordActivity(firstTime ? 10 + (perfect ? 5 : 0) : 5);
+  }
+
+  /**
+   * Enregistre un projet portfolio terminé : +50 XP, compte comme activité du jour.
+   * @param {string} projectId
+   */
+  function completeProject(projectId) {
+    state.projectsDone = state.projectsDone || {};
+    if (state.projectsDone[projectId]) return null; // déjà récompensé
+    state.projectsDone[projectId] = todayKey();
+    return recordActivity(50);
+  }
+
+  /**
+   * Ajoute des XP au jour courant et met à jour le streak (une fois par jour).
+   * @param {number} xp
+   */
+  function recordActivity(xp) {
+    const today = todayKey();
     const xpBefore = state.xpByDay[today] || 0;
     state.xpByDay[today] = xpBefore + xp;
     state.totalXp += xp;
 
-    // 2. Progression de la leçon
-    const prev = state.completed[lessonId] || { perfect: false, times: 0 };
-    state.completed[lessonId] = { perfect: prev.perfect || perfect, times: prev.times + 1 };
-
-    // 3. Streak : on ne l'augmente qu'une fois par jour
+    // Streak : on ne l'augmente qu'une fois par jour
     let streakExtended = false;
     let freezeEarned = false;
     if (state.lastActive !== today) {
@@ -166,6 +183,7 @@ const Streak = (() => {
   return {
     refresh,
     completeLesson,
+    completeProject,
     lastSevenDays,
     get state() { return state; },
     todayXp: () => state.xpByDay[todayKey()] || 0,

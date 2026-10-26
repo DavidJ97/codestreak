@@ -44,7 +44,41 @@ const App = (() => {
   const SNIPPET = {
     python: '<b>print</b>("Bonjour, le monde !")',
     cobol: '<b>DISPLAY</b> "Bonjour, le monde !".',
+    uxai: '&lt;p <b>aria-live</b>="polite"&gt;Génération…&lt;/p&gt;',
+    aieng: '<b>tool_use</b> → tool_result → réponse',
+    linguist: '<b>kappa</b> = 0.82  # accord inter-annotateurs',
+    aisec: '<b>LLM01</b>: Prompt Injection',
   };
+
+  /** Les deux familles de cours affichées à l'accueil. */
+  const GROUPS = [
+    { id: "fondations", title: "Fondations", sub: "Les langages qui font tourner l'industrie" },
+    { id: "ia", title: "Avant-garde IA", sub: "Les compétences recherchées de 2027 à 2030" },
+  ];
+
+  /**
+   * Couleur propre à chaque cours : on passe les deux variantes (clair/sombre)
+   * en variables CSS ; la classe .cs choisit la bonne selon le thème.
+   */
+  const cs = (course) => `style="--cl:${course.color.light};--cd:${course.color.dark}"`;
+
+  /* ---------- Progression des projets (étapes cochées) ---------- */
+  const Projects = {
+    all: () => Storage.get("projects", {}),
+    get(id) { return this.all()[id] || { steps: [], deliverables: [] }; },
+    set(id, data) { const a = this.all(); a[id] = data; Storage.set("projects", a); },
+    /** Pourcentage d'avancement (étapes + livrables). */
+    pct(project) {
+      const p = this.get(project.id);
+      const total = project.steps.length + project.deliverables.length;
+      const done = p.steps.filter(Boolean).length + p.deliverables.filter(Boolean).length;
+      return Math.round((done / total) * 100);
+    },
+  };
+
+  /** Liste à plat de tous les projets avec leur cours. */
+  const allProjects = () => Object.values(window.COURSES)
+    .flatMap((c) => (c.projects || []).map((p) => ({ ...p, course: c })));
 
   /* ======================================================================
      OUTILS
@@ -195,22 +229,43 @@ const App = (() => {
         </button>`;
     }
 
-    const cards = courses.map((c) => {
+    const card = (c) => {
       const p = courseProgress(c);
+      const n = (c.projects || []).length;
       return `
-        <button class="course ${c.id}" data-action="open-course" data-course="${c.id}">
+        <button class="course cs" ${cs(c)} data-action="open-course" data-course="${c.id}">
           <span class="course-ico">${icon(c.badge, 24)}</span>
           <div style="display:flex;flex-direction:column;gap:6px">
             <h3>${c.name}</h3>
             <p>${c.tagline}</p>
           </div>
           <div class="course-foot">
-            <div class="bar ${c.id === "python" ? "py" : "cb"}"><span style="width:${p.pct}%"></span></div>
-            <span>${p.done}/${p.total}</span>
+            <div class="bar cc"><span style="width:${p.pct}%"></span></div>
+            <span>${p.done}/${p.total} · ${n} projet${n > 1 ? "s" : ""}</span>
           </div>
           <div class="snippet">${SNIPPET[c.id] || ""}</div>
         </button>`;
+    };
+    const sections = GROUPS.map((g) => {
+      const list = courses.filter((c) => c.group === g.id);
+      return `
+        <section>
+          <div class="section-head"><div><h2>${g.title}</h2><p class="section-sub">${g.sub}</p></div>
+            <span class="eyebrow">${list.reduce((a, c) => a + c.lessons.length, 0)} leçons</span></div>
+          <div class="courses">${list.map(card).join("")}</div>
+        </section>`;
     }).join("");
+
+    // Bandeau "Projets" : le but final, ce qui va sur GitHub
+    const projs = allProjects();
+    const inProgress = projs.filter((p) => Projects.pct(p) > 0 && Projects.pct(p) < 100);
+    const projBand = `
+      <button class="proj-band" data-action="projects">
+        <span class="tile">${icon("code", 22)}</span>
+        <span><strong>${projs.length} projets portfolio</strong>
+        <small>${inProgress.length ? `${inProgress.length} en cours · ` : ""}Chaque cours mène à des projets à publier sur ton GitHub.</small></span>
+        ${icon("arrow-right", 20)}
+      </button>`;
 
     const hour = new Date().getHours();
     const hello = hour < 12 ? "Bon matin" : hour < 18 ? "Bon après-midi" : "Bonsoir";
@@ -219,15 +274,13 @@ const App = (() => {
       <div class="home">
         <header class="hello">
           <span class="eyebrow">${hello}</span>
-          <h1>Une leçon par jour, et le code devient naturel.</h1>
-          <p>Des leçons courtes inspirées de W3Schools, des exercices rapides et un tuteur IA quand tu bloques.</p>
+          <h1>Une leçon par jour. Un projet GitHub à la fin.</h1>
+          <p>Des fondations (Python, COBOL) à l'avant-garde de l'IA (UX, AI engineering, linguistique, sécurité), avec des sources officielles et des projets qui se montrent en entrevue.</p>
         </header>
         ${cont}
         <div class="rail-inline">${streakCard()}${goalCard()}</div>
-        <section>
-          <div class="section-head"><h2>Tes cours</h2><span class="eyebrow">${courses.reduce((a, c) => a + c.lessons.length, 0)} leçons</span></div>
-          <div class="courses">${cards}</div>
-        </section>
+        ${projBand}
+        ${sections}
       </div>`;
   }
 
@@ -264,10 +317,12 @@ const App = (() => {
         </li>`;
     }).join("");
 
+    const projects = (course.projects || []).map(projectCard).join("");
+
     view.innerHTML = `
-      <section class="unit ${course.id}">
+      <section class="unit cs" ${cs(course)}>
         <span class="unit-glyph">${icon(course.badge, 180)}</span>
-        <span class="eyebrow">Cours</span>
+        <span class="eyebrow">${course.group === "ia" ? "Avant-garde IA" : "Fondations"}</span>
         <h1>${course.name}</h1>
         <p>${course.tagline}</p>
         <div class="unit-meta">
@@ -275,7 +330,194 @@ const App = (() => {
           <span>${p.done} / ${p.total} leçons</span>
         </div>
       </section>
-      <ol class="lessons">${rows}</ol>`;
+      <div class="section-head"><h2>Leçons</h2><span class="eyebrow">${p.total} leçons</span></div>
+      <ol class="lessons">${rows}</ol>
+      ${projects ? `
+        <div class="section-head" style="margin-top:28px"><div><h2>Projets portfolio</h2>
+          <p class="section-sub">À publier sur ton GitHub une fois les leçons conseillées terminées.</p></div></div>
+        <div class="proj-grid">${projects}</div>` : ""}`;
+  }
+
+  /* ======================================================================
+     ÉCRAN : PROJETS PORTFOLIO
+     ====================================================================== */
+
+  /** Carte résumée d'un projet (liste). */
+  function projectCard(p) {
+    const course = p.course || Object.values(window.COURSES).find((c) => (c.projects || []).includes(p));
+    const pct = Projects.pct(p);
+    const ready = !p.after || Streak.isCompleted(p.after);
+    const afterLesson = course.lessons.find((l) => l.id === p.after);
+    return `
+      <button class="proj cs" ${cs(course)} data-action="open-project" data-project="${p.id}">
+        <div class="proj-top">
+          <span class="chip cc-chip">${icon(course.badge, 13)}${course.name}</span>
+          <span class="chip">${p.level}</span>
+          ${pct === 100 ? `<span class="chip done">${icon("check", 13)}Publié</span>` : ""}
+        </div>
+        <h3>${escapeHtml(p.title)}</h3>
+        <p>${escapeHtml(p.pitch)}</p>
+        <div class="proj-foot">
+          <span>${icon("repeat", 14)}${p.duration}</span>
+          <span class="${ready ? "" : "muted"}">${ready ? "Prêt à commencer" : `Après « ${escapeHtml(afterLesson ? afterLesson.title : "")} »`}</span>
+        </div>
+        <div class="bar cc"><span style="width:${pct}%"></span></div>
+      </button>`;
+  }
+
+  function renderProjects() {
+    session = null;
+    Chat.setContext(null, null);
+    setChrome({ nav: "projects", crumb: "<b>Projets</b>" });
+    const groups = Object.values(window.COURSES).filter((c) => (c.projects || []).length);
+    view.innerHTML = `
+      <header class="hello">
+        <span class="eyebrow">Portfolio</span>
+        <h1>Des projets qui se montrent en entrevue.</h1>
+        <p>Chaque projet devient un dépôt GitHub : code testé, README clair, résultats chiffrés.
+        Les recruteurs regardent ce que tu as livré, comment tu l'as évalué et ce qui a cassé en route.</p>
+      </header>
+      ${groups.map((c) => `
+        <section style="margin-top:28px">
+          <div class="section-head"><h2>${c.name}</h2><span class="eyebrow">${c.projects.length} projets</span></div>
+          <div class="proj-grid">${c.projects.map((p) => projectCard({ ...p, course: c })).join("")}</div>
+        </section>`).join("")}`;
+  }
+
+  function findProject(id) {
+    return allProjects().find((p) => p.id === id);
+  }
+
+  function renderProject(id) {
+    const p = findProject(id);
+    const course = p.course;
+    session = null;
+    Chat.setContext(course.name, `Projet : ${p.title}`);
+    setChrome({ nav: "projects", crumb: `Projets · <b>${escapeHtml(p.title)}</b>` });
+    const state = Projects.get(p.id);
+    const pct = Projects.pct(p);
+
+    const checklist = (items, key) => items.map((text, i) => `
+      <li><label class="check">
+        <input type="checkbox" data-project="${p.id}" data-key="${key}" data-i="${i}" ${state[key] && state[key][i] ? "checked" : ""}>
+        <span class="box">${icon("check", 14)}</span><span>${escapeHtml(text)}</span>
+      </label></li>`).join("");
+
+    const repo = p.title.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
+
+    view.innerHTML = `
+      <button class="back" data-action="projects">${icon("arrow-left", 18)}Tous les projets</button>
+      <section class="unit cs" ${cs(course)}>
+        <span class="unit-glyph">${icon(course.badge, 180)}</span>
+        <span class="eyebrow">${course.name} · ${p.level} · ${p.duration}</span>
+        <h1>${escapeHtml(p.title)}</h1>
+        <p>${escapeHtml(p.pitch)}</p>
+        <div class="unit-meta"><div class="bar"><span style="width:${pct}%"></span></div><span>${pct}%</span></div>
+      </section>
+
+      <div class="proj-layout">
+        <div class="proj-main">
+          <section class="card proj-why">
+            <span class="eyebrow">Pourquoi ça aide à te faire embaucher</span>
+            <p>${escapeHtml(p.hiring)}</p>
+            <div class="stack">${p.stack.map((s) => `<span class="chip">${escapeHtml(s)}</span>`).join("")}</div>
+          </section>
+
+          <section>
+            <div class="section-head"><h2>Étapes</h2><span class="eyebrow">dépôt suggéré : ${repo}</span></div>
+            <ul class="checklist">${checklist(p.steps, "steps")}</ul>
+          </section>
+
+          <section>
+            <div class="section-head"><h2>Livrables dans le dépôt</h2></div>
+            <ul class="checklist">${checklist(p.deliverables, "deliverables")}</ul>
+          </section>
+        </div>
+
+        <aside class="proj-side">
+          <section class="card">
+            <span class="eyebrow">Questions d'entrevue</span>
+            <ul class="plain">${p.interview.map((q) => `<li>${escapeHtml(q)}</li>`).join("")}</ul>
+          </section>
+          <section class="card">
+            <span class="eyebrow">Pour aller plus loin</span>
+            <ul class="plain">${p.stretch.map((q) => `<li>${escapeHtml(q)}</li>`).join("")}</ul>
+          </section>
+          <section class="card">
+            <span class="eyebrow">Documentation officielle</span>
+            <ul class="sources">${sourceLinks(p.sources)}</ul>
+          </section>
+          <div class="side-actions">
+            <button class="btn btn-line" data-action="copy-readme" data-project="${p.id}">${icon("file", 16)}Copier le README</button>
+            <button class="btn" data-action="ask-project" data-project="${p.id}">${icon("sparkles", 16)}Planifier avec le tuteur</button>
+          </div>
+        </aside>
+      </div>`;
+
+    // Cocher une étape : on sauvegarde et on met à jour la progression
+    view.querySelectorAll(".checklist input").forEach((box) => box.addEventListener("change", () => {
+      const st = Projects.get(p.id);
+      const key = box.dataset.key;
+      st[key] = st[key] || [];
+      st[key][Number(box.dataset.i)] = box.checked;
+      Projects.set(p.id, st);
+      const now = Projects.pct(p);
+      view.querySelector(".unit-meta .bar span").style.width = now + "%";
+      view.querySelector(".unit-meta > span").textContent = now + "%";
+      if (now === 100) {
+        const r = Streak.completeProject(p.id);
+        if (r) { renderStats(); toast(`Projet terminé : +${r.xp} XP. Publie-le et épingle-le sur ton profil GitHub.`); }
+      }
+    }));
+  }
+
+  /** README de départ généré à partir de la fiche du projet. */
+  function readmeFor(p) {
+    return [
+      `# ${p.title}`,
+      "",
+      p.pitch,
+      "",
+      "## Pourquoi ce projet",
+      p.hiring,
+      "",
+      "## Stack",
+      ...p.stack.map((s) => `- ${s}`),
+      "",
+      "## Feuille de route",
+      ...p.steps.map((s) => `- [ ] ${s}`),
+      "",
+      "## Résultats",
+      "_À compléter : chiffres, captures, démo._",
+      "",
+      "## Installation",
+      "```bash",
+      "# commandes d'installation et de lancement",
+      "```",
+      "",
+      "## Ce que j'ai appris / ce qui a cassé",
+      "_À compléter._",
+      "",
+      "## Références",
+      ...p.sources.map((s) => `- [${s.title}](${s.url})`),
+    ].join("\n");
+  }
+
+  /** Petit message temporaire en bas de l'écran. */
+  function toast(text) {
+    const t = document.createElement("div");
+    t.className = "toast";
+    t.setAttribute("role", "status");
+    t.textContent = text;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 4200);
+  }
+
+  /** Liste de liens vers les sources officielles. */
+  function sourceLinks(sources = []) {
+    return sources.map((s) => `
+      <li><a href="${s.url}" target="_blank" rel="noopener">${icon("book-open", 15)}<span>${escapeHtml(s.title)}</span></a></li>`).join("");
   }
 
   /* ======================================================================
@@ -292,7 +534,7 @@ const App = (() => {
       mistakes: 0, checked: false, answer: null, bank: [],
     };
     Chat.setContext(course.name, lesson.title);
-    if (course.runnable) Runner.preload(); // on commence à charger Python en arrière-plan
+    if (course.run === "python") Runner.preload(); // on commence à charger Python en arrière-plan
     renderTheory();
   }
 
@@ -312,12 +554,26 @@ const App = (() => {
   function renderTheory() {
     const { course, lesson } = session;
     setChrome({ focus: true });
-    const file = course.id === "python" ? "main.py" : `${lesson.id.replace("cb-", "").toUpperCase()}.cbl`;
+    // Nom de fichier affiché dans la barre de l'éditeur
+    const file = {
+      python: "main.py",
+      simulate: `${lesson.id.replace("cb-", "").toUpperCase()}.cbl`,
+      preview: "composant.html",
+    }[course.run];
 
-    // Bouton d'action selon le langage
-    const runBtn = course.runnable
-      ? `<button class="btn btn-sm run" data-action="run">${icon("play", 14)}Exécuter</button>`
-      : `<button class="btn btn-sm run" data-action="simulate">${icon("play", 14)}Simuler avec l'IA</button>`;
+    // Bouton d'action selon le mode du cours : exécuter (Python), simuler (COBOL), aperçu (HTML)
+    const runBtn = {
+      python: `<button class="btn btn-sm run" data-action="run">${icon("play", 14)}Exécuter</button>`,
+      simulate: `<button class="btn btn-sm run" data-action="simulate">${icon("play", 14)}Simuler avec l'IA</button>`,
+      preview: `<button class="btn btn-sm run" data-action="preview">${icon("play", 14)}Aperçu</button>`,
+    }[course.run];
+
+    // Sources officielles de la leçon
+    const sources = lesson.sources && lesson.sources.length ? `
+      <section class="sources-box">
+        <span class="eyebrow">Sources officielles</span>
+        <ul class="sources">${sourceLinks(lesson.sources)}</ul>
+      </section>` : "";
 
     view.innerHTML = `
       ${lessonTopBar()}
@@ -325,9 +581,9 @@ const App = (() => {
         <span class="eyebrow">${course.name} · Leçon ${session.lessonIndex + 1}</span>
         ${lesson.theory}
 
-        <div class="ide">
+        <div class="ide cs" ${cs(course)}>
           <div class="ide-bar">
-            <span class="ide-file"><span class="lamp ${course.id}"></span>${file} <em>· modifiable</em></span>
+            <span class="ide-file"><span class="lamp"></span>${file} <em>· modifiable</em></span>
             <button class="btn btn-sm tool" data-action="reset-code" title="Réinitialiser le code">${icon("rotate", 14)}</button>
             <button class="btn btn-sm tool" data-action="explain">${icon("sparkles", 14)}Expliquer</button>
             ${runBtn}
@@ -339,7 +595,12 @@ const App = (() => {
             <div class="console-head">Console</div>
             <pre id="output"></pre>
           </div>
+          <div class="preview" id="preview" hidden>
+            <div class="console-head">Aperçu</div>
+            <div class="preview-host" id="preview-host"></div>
+          </div>
         </div>
+        ${sources}
       </article>
 
       <div class="dock">
@@ -387,6 +648,18 @@ const App = (() => {
 
   /** Code actuellement dans l'éditeur (modifié ou non). */
   const currentCode = () => document.getElementById("code-edit")?.value ?? session.lesson.example;
+
+  /**
+   * Affiche le HTML de l'éditeur dans un "shadow DOM" : ses styles restent
+   * isolés et n'abîment pas l'interface de l'app (les scripts ne s'exécutent pas).
+   */
+  function previewCode() {
+    const box = document.getElementById("preview");
+    const host = document.getElementById("preview-host");
+    box.hidden = false;
+    const root = host.shadowRoot || host.attachShadow({ mode: "open" });
+    root.innerHTML = currentCode();
+  }
 
   async function runCode() {
     const box = document.getElementById("console");
@@ -682,6 +955,29 @@ const App = (() => {
 
       // --- Théorie ---
       case "run": runCode(); break;
+      case "preview": previewCode(); break;
+
+      // --- Projets ---
+      case "projects": renderProjects(); break;
+      case "open-project": renderProject(el.dataset.project); break;
+      case "copy-readme": {
+        const text = readmeFor(findProject(el.dataset.project));
+        // Le presse-papiers peut être refusé : on affiche alors le texte à copier à la main
+        navigator.clipboard?.writeText(text)
+          .then(() => toast("README copié : colle-le dans ton nouveau dépôt GitHub."))
+          .catch(() => {
+            Chat.open();
+            Chat.note("Copie ce README dans ton dépôt :\n\n" + text);
+          });
+        break;
+      }
+      case "ask-project": {
+        const p = findProject(el.dataset.project);
+        Chat.send(`Je commence le projet portfolio « ${p.title} » (${p.course.name}). Objectif : ${p.pitch}\n` +
+          `Étapes prévues :\n${p.steps.map((s, i) => `${i + 1}. ${s}`).join("\n")}\n\n` +
+          `Aide-moi à planifier la première étape concrètement (structure du dépôt, premiers fichiers, commandes).`);
+        break;
+      }
       case "reset-code": renderTheory(); break;
       case "explain":
         Chat.send(`Explique-moi ce code ligne par ligne :\n\n\`\`\`${session.course.language}\n${currentCode()}\n\`\`\``);
@@ -742,6 +1038,7 @@ const App = (() => {
       case "reset-progress":
         if (el.dataset.confirm === "1") {
           Streak.reset();
+          Storage.remove("projects");
           closeModal();
           renderStats();
           renderHome();
@@ -774,7 +1071,16 @@ const App = (() => {
   /* ======================================================================
      DÉMARRAGE
      ====================================================================== */
+  /** Construit la liste des cours dans la barre latérale à partir de COURSES. */
+  function renderNav() {
+    document.getElementById("nav-courses").innerHTML = Object.values(window.COURSES).map((c) => `
+      <button class="nav-item cs" ${cs(c)} data-action="open-course" data-course="${c.id}" data-nav="${c.id}">
+        ${icon(c.badge)}<span>${c.name}</span>
+      </button>`).join("");
+  }
+
   function init() {
+    renderNav();
     hydrateIcons();    // remplace les <i data-icon> du HTML statique par des SVG
     Streak.refresh();  // applique les gels / casse le streak si des jours ont été manqués
     Chat.init();

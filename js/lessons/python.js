@@ -32,7 +32,9 @@ window.COURSES.python = {
   name: "Python",
   badge: "code",
   language: "python",          // nom du langage pour Prism (coloration)
-  runnable: true,              // le code peut être exécuté dans le navigateur (Pyodide)
+  run: "python",               // le code s'exécute dans le navigateur (Pyodide)
+  group: "fondations",
+  color: { light: "#2f63ff", dark: "#6f93ff" },
   tagline: "Le langage le plus populaire au monde : simple, lisible, partout (IA, web, data).",
   lessons: [
     /* ------------------------------------------------------------------ */

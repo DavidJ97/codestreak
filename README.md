@@ -1,6 +1,6 @@
-# 🔥 CodeStreak — Apprendre Python et COBOL
+# 🔥 CodeStreak — Apprendre Python, COBOL et les métiers de l'IA
 
-Une petite app web pour apprendre **Python** et **COBOL** :
+Une app web pour apprendre les fondations (**Python**, **COBOL**) et les compétences IA recherchées de 2027 à 2030 (**UX/UI de l'IA**, **AI Engineering**, **AI Linguist**, **Sécurité de l'IA**), avec des **projets portfolio** à publier sur GitHub :
 
 - 📚 **Leçons courtes inspirées de W3Schools** : une notion, un exemple, puis des exercices.
 - ✍️ **« Essaie-le toi-même »** : le code Python s'exécute directement dans le navigateur (Pyodide). Pour le COBOL, l'IA simule l'exécution.
@@ -38,6 +38,21 @@ python3 -m http.server 8000
 
 ## 🗺️ Contenu des cours
 
+### Avant-garde IA (5 leçons chacun, sources officielles citées dans chaque leçon)
+
+| Cours | Contenu | Références |
+|---|---|---|
+| UX/UI de l'IA | 18 lignes directrices HAX, confiance calibrée, streaming accessible, UX des agents, transparence et cadre légal | Microsoft HAX Toolkit, Google PAIR Guidebook, AI Act art. 50, Loi 25 art. 12.1 |
+| AI Engineering | API Messages, prompt engineering, RAG, tool use / agents / MCP, évaluations | Docs Claude, *Building effective agents*, Model Context Protocol |
+| AI Linguist | Le métier, guides d'annotation et kappa de Cohen, évaluation de la langue, multilinguisme, annotation assistée | Offres d'emploi réelles, *Datasheets for Datasets* |
+| Sécurité de l'IA | OWASP LLM Top 10 2025, injection de prompt, OWASP Agentic 2026, sorties/données/coûts, red teaming et gouvernance | OWASP GenAI, MITRE ATLAS, NIST AI RMF / AI 600-1, AI Act (règl. 2026/1744) |
+
+### Projets portfolio (14)
+
+Chaque cours mène à 2 ou 3 projets pensés pour un dépôt GitHub : étapes cochables, livrables attendus, questions d'entrevue, documentation officielle et README de départ copiable. Exemples : CLI testée avec CI, API FastAPI + Docker, batch COBOL avec CI GnuCOBOL, modernisation COBOL → Python, assistant RAG avec evals, serveur MCP, agent avec garde-fous, benchmark français québécois / créole, red team d'une app LLM, passerelle de sécurité pour agents.
+
+### Fondations
+
 | Python (16 leçons, ordre W3Schools) | COBOL (13 leçons) |
 |---|---|
 | Introduction · Syntaxe et indentation · Commentaires · Variables · Types de données · Nombres et conversion · Chaînes · Booléens et opérateurs · Listes · Tuples et sets · Dictionnaires · if / elif / else · Boucles · Fonctions et lambda · Classes et objets · Gestion des erreurs | Introduction · Les 4 divisions · Format des colonnes · Variables et niveaux · Clause PIC · DISPLAY / ACCEPT · MOVE · Calculs · IF / EVALUATE · Boucles PERFORM · Tableaux (OCCURS) · Chaînes · Fichiers séquentiels |
@@ -69,9 +84,15 @@ codestreak/
 ├── css/style.css         Tout le style (boutons 3D façon Duolingo, thème sombre auto, mobile)
 └── js/
     ├── storage.js        Sauvegarde locale (localStorage) protégée contre les erreurs
+    ├── icons.js          Jeu d'icônes SVG
     ├── lessons/
-    │   ├── python.js     Les leçons Python (théorie + exemple + exercices)
-    │   └── cobol.js      Les leçons COBOL
+    │   ├── python.js     Leçons Python (théorie + exemple + exercices)
+    │   ├── cobol.js      Leçons COBOL
+    │   ├── uxai.js       UX/UI de l'IA (exemples HTML avec aperçu)
+    │   ├── aieng.js      AI Engineering
+    │   ├── linguist.js   AI Linguist
+    │   └── aisec.js      Sécurité de l'IA
+    ├── projects.js       Projets portfolio de chaque cours
     ├── streak.js         Streak, XP, objectif quotidien, gels
     ├── runner.js         Exécution de Python dans le navigateur (Pyodide, chargé à la demande)
     ├── chat.js           Tuteur IA : appel à l'API Anthropic + rendu des réponses

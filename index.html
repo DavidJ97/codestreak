@@ -26,7 +26,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>CodeStreak</title>
   <meta name="claude:viewport-fit-sides" content="cover">
-  <meta name="description" content="Apprends Python et COBOL avec des leçons courtes, un streak quotidien et un tuteur IA.">
+  <meta name="description" content="Apprends Python, COBOL et les métiers de l'IA avec des leçons courtes, des projets GitHub, un streak quotidien et un tuteur IA.">
 
   <!-- Polices : Geist (interface), Geist Mono (code), Bricolage Grotesque (titres et chiffres) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,10 +47,13 @@
       </button>
 
       <div class="nav-group">
-        <span class="nav-label">Apprendre</span>
         <button class="nav-item" data-action="home" data-nav="home"><i data-icon="home"></i><span>Accueil</span></button>
-        <button class="nav-item" data-action="open-course" data-course="python" data-nav="python"><i data-icon="code"></i><span>Python</span></button>
-        <button class="nav-item" data-action="open-course" data-course="cobol" data-nav="cobol"><i data-icon="server"></i><span>COBOL</span></button>
+        <button class="nav-item" data-action="projects" data-nav="projects"><i data-icon="code"></i><span>Projets</span></button>
+      </div>
+
+      <div class="nav-group">
+        <span class="nav-label">Cours</span>
+        <div id="nav-courses" class="nav-group"><!-- rempli par app.js -> renderNav() --></div>
       </div>
 
       <div class="nav-group">
@@ -83,8 +86,7 @@
   <!-- ===== Barre d'onglets (mobile) ===== -->
   <nav class="tabbar" aria-label="Navigation">
     <button data-action="home" data-nav="home"><i data-icon="home"></i><span>Accueil</span></button>
-    <button data-action="open-course" data-course="python" data-nav="python"><i data-icon="code"></i><span>Python</span></button>
-    <button data-action="open-course" data-course="cobol" data-nav="cobol"><i data-icon="server"></i><span>COBOL</span></button>
+    <button data-action="projects" data-nav="projects"><i data-icon="code"></i><span>Projets</span></button>
     <button data-action="toggle-chat"><i data-icon="sparkles"></i><span>Tuteur</span></button>
     <button data-action="settings"><i data-icon="settings"></i><span>Réglages</span></button>
   </nav>
@@ -121,6 +123,11 @@
   <script src="js/storage.js"></script>
   <script src="js/lessons/python.js"></script>
   <script src="js/lessons/cobol.js"></script>
+  <script src="js/lessons/uxai.js"></script>
+  <script src="js/lessons/aieng.js"></script>
+  <script src="js/lessons/linguist.js"></script>
+  <script src="js/lessons/aisec.js"></script>
+  <script src="js/projects.js"></script>
   <script src="js/streak.js"></script>
   <script src="js/runner.js"></script>
   <script src="js/chat.js"></script>

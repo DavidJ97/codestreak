@@ -20,7 +20,9 @@ window.COURSES.cobol = {
   name: "COBOL",
   badge: "server",
   language: "cobol",
-  runnable: false, // pas d'exécution dans le navigateur : on propose l'IA pour "simuler"
+  run: "simulate",             // pas d'exécution dans le navigateur : l'IA simule la sortie
+  group: "fondations",
+  color: { light: "#c76d00", dark: "#ffad3d" },
   tagline: "Le langage des banques et des mainframes : rare, recherché, toujours en production.",
   lessons: [
     /* ------------------------------------------------------------------ */

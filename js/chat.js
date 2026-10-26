@@ -210,5 +210,16 @@ const Chat = (() => {
     });
   }
 
-  return { init, send, toggle, open, setContext, getSettings, saveSettings, DEFAULT_MODEL };
+  /** Affiche un long texte brut (ex. README à copier) dans le fil, sans l'envoyer à l'IA. */
+  function note(text) {
+    const div = document.createElement("div");
+    div.className = "msg assistant";
+    const pre = document.createElement("pre");
+    pre.textContent = text;
+    div.appendChild(pre);
+    logEl().appendChild(div);
+    logEl().scrollTop = logEl().scrollHeight;
+  }
+
+  return { init, send, toggle, open, note, setContext, getSettings, saveSettings, DEFAULT_MODEL };
 })();

@@ -440,6 +440,23 @@ const App = (() => {
         <span class="box">${icon("check", 14)}</span><span>${escapeHtml(text)}</span>
       </label></li>`).join("");
 
+    // Parcours de documentation (js/guides.js) : doc officielle par étape + objectifs de niveau
+    const guide = (window.GUIDES || {})[p.id];
+    const levelDone = guide ? (state.level || []).filter(Boolean).length : 0;
+    const stepItems = () => p.steps.map((text, i) => {
+      const g = guide && guide.steps[i];
+      return `
+      <li class="step-item"><label class="check">
+        <input type="checkbox" data-project="${p.id}" data-key="steps" data-i="${i}" ${state.steps && state.steps[i] ? "checked" : ""}>
+        <span class="box">${icon("check", 14)}</span><span>${escapeHtml(text)}</span>
+      </label>
+      ${g ? `<details class="step-doc">
+        <summary>${icon("book-open", 14)}Documentation de l'étape</summary>
+        <p>${escapeHtml(g.learn)}</p>
+        <ul>${g.docs.map(([t, u]) => `<li><a href="${u}" target="_blank" rel="noopener">${escapeHtml(t)} ${icon("external", 12)}</a></li>`).join("")}</ul>
+      </details>` : ""}</li>`;
+    }).join("");
+
     const repo = p.title.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
       .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
 
@@ -461,9 +478,17 @@ const App = (() => {
             <div class="stack">${p.stack.map((s) => `<span class="chip">${escapeHtml(s)}</span>`).join("")}</div>
           </section>
 
+          ${guide ? `
+          <section class="card level-card">
+            <div class="section-head" style="margin-bottom:6px"><h2>Objectif : niveau intermédiaire</h2><span class="eyebrow">${levelDone}/${guide.intermediate.length}</span></div>
+            <p class="muted-p">À la fin, tu dois pouvoir faire tout ceci <b>sans tutoriel</b>, avec seulement la documentation officielle. Coche honnêtement.</p>
+            <ul class="checklist">${checklist(guide.intermediate, "level")}</ul>
+          </section>` : ""}
+
           <section>
-            <div class="section-head"><h2>Étapes</h2><span class="eyebrow">dépôt suggéré : ${repo}</span></div>
-            <ul class="checklist">${checklist(p.steps, "steps")}</ul>
+            <div class="section-head"><h2>Étapes et documentation</h2><span class="eyebrow">dépôt suggéré : ${repo}</span></div>
+            ${guide ? `<p class="muted-p" style="margin-bottom:12px">Méthode : lis la doc officielle de l'étape, code sans copier, puis reviens à la doc quand tu bloques. C'est exactement ce qu'on fait au travail.</p>` : ""}
+            <ul class="checklist">${stepItems()}</ul>
           </section>
 
           <section>
@@ -499,6 +524,10 @@ const App = (() => {
       st[key] = st[key] || [];
       st[key][Number(box.dataset.i)] = box.checked;
       Projects.set(p.id, st);
+      // Compteur "niveau intermédiaire" mis à jour en direct
+      if (key === "level" && guide) {
+        view.querySelector(".level-card .eyebrow").textContent = `${st.level.filter(Boolean).length}/${guide.intermediate.length}`;
+      }
       const now = Projects.pct(p);
       view.querySelector(".unit-meta .bar span").style.width = now + "%";
       view.querySelector(".unit-meta > span").textContent = now + "%";

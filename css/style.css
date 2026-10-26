@@ -826,3 +826,17 @@ code { font-family: var(--mono); font-size: .88em; background: var(--surface-2);
 .btn-sm { height: auto; min-height: 34px; padding-block: 6px; text-align: left; }
 .entry h3 a, .watch a { display: inline; }
 .entry h3 a .ico, .watch a .ico { display: inline-block; vertical-align: -2px; margin-left: 4px; }
+
+/* --- Parcours de documentation dans la fiche projet --- */
+.muted-p { color: var(--muted); font-size: .9rem; }
+.muted-p b { color: var(--ink); }
+.level-card { display: flex; flex-direction: column; gap: 10px; border-color: color-mix(in srgb, var(--py) 35%, var(--line)); }
+.step-item { display: flex; flex-direction: column; gap: 6px; }
+.step-doc { margin-left: 34px; font-size: .86rem; }
+.step-doc summary { cursor: pointer; display: inline-flex; align-items: center; gap: 6px; color: var(--py); font-weight: 600; list-style: none; }
+.step-doc summary::-webkit-details-marker { display: none; }
+.step-doc[open] { padding: 10px 12px; border-radius: 12px; background: var(--surface-2); }
+.step-doc p { color: var(--ink-soft); margin: 8px 0 6px; }
+.step-doc ul { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 4px; }
+.step-doc a { color: var(--ink); font-weight: 500; }
+.step-doc a .ico { display: inline-block; vertical-align: -2px; margin-left: 2px; }

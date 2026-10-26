@@ -216,6 +216,8 @@
 
 @media (max-width: 640px) {
   .viz { padding: 14px; margin-inline: -4px; }
+  .vz-head { justify-content: space-between; }
+  .vz-title { flex: 1 1 100%; order: 3; }
   .vz-trace { grid-template-columns: minmax(0, 1fr); }
   .vz-flow--cycle { height: 280px; }
   .vz-flow--cycle .vz-node { width: 96px; padding: 8px; }

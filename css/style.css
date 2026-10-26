@@ -68,6 +68,8 @@ p { margin: 0 0 1em; }
 code { font-family: var(--mono); font-size: .92em; background: var(--surface); padding: .1em .35em; border-radius: 6px; border: 1px solid var(--border); }
 pre code { border: 0; padding: 0; background: none; }
 button { font-family: inherit; cursor: pointer; }
+/* L'attribut HTML "hidden" doit toujours gagner sur les display: block/flex définis plus bas */
+[hidden] { display: none !important; }
 
 /* ---------- 3. Barre du haut ---------- */
 .topbar {

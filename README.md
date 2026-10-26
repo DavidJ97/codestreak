@@ -38,18 +38,22 @@ python3 -m http.server 8000
 
 ## 🗺️ Contenu des cours
 
-### Avant-garde IA (5 leçons chacun, sources officielles citées dans chaque leçon)
+### Avant-garde IA (6 leçons chacun, sources officielles citées dans chaque leçon)
 
 | Cours | Contenu | Références |
 |---|---|---|
-| UX/UI de l'IA | 18 lignes directrices HAX, confiance calibrée, streaming accessible, UX des agents, transparence et cadre légal | Microsoft HAX Toolkit, Google PAIR Guidebook, AI Act art. 50, Loi 25 art. 12.1 |
-| AI Engineering | API Messages, prompt engineering, RAG, tool use / agents / MCP, évaluations | Docs Claude, *Building effective agents*, Model Context Protocol |
-| AI Linguist | Le métier, guides d'annotation et kappa de Cohen, évaluation de la langue, multilinguisme, annotation assistée | Offres d'emploi réelles, *Datasheets for Datasets* |
-| Sécurité de l'IA | OWASP LLM Top 10 2025, injection de prompt, OWASP Agentic 2026, sorties/données/coûts, red teaming et gouvernance | OWASP GenAI, MITRE ATLAS, NIST AI RMF / AI 600-1, AI Act (règl. 2026/1744) |
+| UX/UI de l'IA | 18 lignes directrices HAX, confiance calibrée, streaming accessible, UX des agents, transparence et cadre légal, interfaces génératives et multimodales | Microsoft HAX Toolkit, Google PAIR Guidebook, AI Act art. 50, Loi 25 art. 12.1, MCP 2026-07-28, WCAG 2.2 / 3.0 |
+| AI Engineering | API Messages, prompt engineering, RAG, tool use / agents / MCP, évaluations, context engineering et production | Docs Claude, *Building effective agents*, *Effective context engineering*, Model Context Protocol |
+| AI Linguist | Le métier, tokens et langues (BPE, Unicode), guides d'annotation et kappa de Cohen, évaluation de la langue, multilinguisme, annotation assistée | Offres d'emploi réelles, *Datasheets for Datasets*, Hugging Face LLM Course |
+| Sécurité de l'IA | OWASP LLM Top 10 2025, injection de prompt, OWASP Agentic 2026, sorties/données/coûts, red teaming et gouvernance, chaîne d'approvisionnement et MCP | OWASP GenAI, MITRE ATLAS, NIST AI RMF / AI 600-1, AI Act (règl. 2026/1744) |
 
 ### Projets portfolio (14)
 
 Chaque cours mène à 2 ou 3 projets pensés pour un dépôt GitHub : étapes cochables, livrables attendus, questions d'entrevue, documentation officielle et README de départ copiable. Exemples : CLI testée avec CI, API FastAPI + Docker, batch COBOL avec CI GnuCOBOL, modernisation COBOL → Python, assistant RAG avec evals, serveur MCP, agent avec garde-fous, benchmark français québécois / créole, red team d'une app LLM, passerelle de sécurité pour agents.
+
+### Métiers visés (5)
+
+L'écran **Projets** relie chaque poste à ses cours et à ses projets, avec ce que regardent les recruteurs et l'avancement : AI Engineer, Designer UX/UI de l'IA, AI Linguist, Sécurité de l'IA, Développeur COBOL et modernisation.
 
 ### Fondations
 

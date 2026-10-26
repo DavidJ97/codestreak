@@ -203,7 +203,7 @@ window.COURSES.cobol = {
         </table>
         <p><code>9(5)</code> est un raccourci pour <code>99999</code>. La clause <code>VALUE</code> donne une valeur initiale.</p>`,
       example: `       IDENTIFICATION DIVISION.
-       PROGRAM-ID. PICTURE.
+       PROGRAM-ID. CLAUSEPIC.
        DATA DIVISION.
        WORKING-STORAGE SECTION.
        01 WS-QTE        PIC 9(3)     VALUE 7.

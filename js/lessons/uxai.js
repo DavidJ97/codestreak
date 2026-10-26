@@ -291,7 +291,8 @@ window.COURSES.uxai = {
         <div class="tip">Dans l'exemple, la carte est « générée » mais ne fait qu'assembler des composants et des tokens
         existants : change la valeur de <code>--accent</code> et tout suit.</div>`,
       example: `<style>
-  :root { --accent: #c2338a; --radius: 14px; --space: 12px; --font: system-ui; }
+  /* Les tokens du design system (ici posés sur le composant) */
+  .card { --accent: #c2338a; --radius: 14px; --space: 12px; --font: system-ui; }
   .card { font: 15px/1.5 var(--font); max-width: 440px; border: 1px solid #ddd; border-radius: var(--radius); padding: calc(var(--space) * 1.5); }
   .card h3 { margin: 0 0 var(--space); font-size: 17px; }
   .row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #eee; }

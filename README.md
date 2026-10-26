@@ -65,6 +65,10 @@ Tous les exemples Python s'exécutent sans erreur, et tous les exemples COBOL co
 
 ---
 
+## 🎛️ Cadran rotatif (navigation)
+
+La navigation principale est un cadran, repris du projet Wing Chun Revolution : un dôme au bas de l'écran s'ouvre en étoile et déploie les pages (Accueil, Projets, Certifs, Veille) sur une roue infinie. On la tourne au doigt, avec les flèches ou le clavier (← →, Échap) ; la page en haut de la roue est la page affichée, et elle entre en arc du côté d'où vient son icône. Clics sonores générés par Web Audio, indice animé à la première ouverture, mouvement réduit respecté. Code : `js/dial.js` et `css/dial.css`.
+
 ## 🔥 Règles du streak
 
 | Action | Effet |

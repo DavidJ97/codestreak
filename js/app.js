@@ -141,6 +141,21 @@ const App = (() => {
     document.querySelectorAll("[data-nav]").forEach((el) => el.classList.toggle("active", el.dataset.nav === nav));
     document.getElementById("crumb").innerHTML = crumb;
     window.scrollTo({ top: 0 });
+    if (window.Dial) Dial.sync(nav); // le cadran se recale sur la page affichée
+  }
+
+  /**
+   * Aller à une page depuis le cadran rotatif : la page entre en arc,
+   * du côté d'où vient son icône (direction -1 = gauche, 1 = droite).
+   */
+  function goPage(page, direction = 0) {
+    const pages = { home: renderHome, projects: renderProjects, certs: renderCerts, journal: renderJournal };
+    (pages[page] || renderHome)();
+    view.classList.remove("arc-in", "from-left", "from-right");
+    if (!direction) return;
+    void view.offsetWidth; // relance l'animation
+    view.classList.add("arc-in", direction > 0 ? "from-right" : "from-left");
+    view.addEventListener("animationend", () => view.classList.remove("arc-in", "from-left", "from-right"), { once: true });
   }
 
   /* ======================================================================
@@ -1422,10 +1437,11 @@ const App = (() => {
     Streak.refresh();  // applique les gels / casse le streak si des jours ont été manqués
     Chat.init();
     renderStats();
+    if (window.Dial) Dial.init(goPage); // le cadran rotatif, navigation principale
     renderHome();
   }
 
-  return { init, openSettings };
+  return { init, openSettings, goPage };
 })();
 
 App.init();

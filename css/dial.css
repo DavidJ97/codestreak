@@ -1,0 +1,186 @@
+/* ============================================================================
+   dial.css — Le cadran rotatif
+   ----------------------------------------------------------------------------
+   Repris de radial-nav.css (Wing Chun Revolution), aux couleurs de
+   CodeStreak : le rouge devient la flamme (ambre → orange).
+
+   Tout part d'un point : le milieu du bord bas de l'écran. Le dôme y est
+   posé ; ouvert, il devient une étoile et les pages se rangent sur un cercle
+   de rayon --dl-radius autour de ce point. Seule la moitié haute du cercle
+   est à l'écran.
+   ========================================================================== */
+
+.dl {
+  --dl-glow: #ff4d17;
+  --dl-glow-rgb: 255, 77, 23;
+  --dl-muted: #9aa0b8;
+  --dl-radius: 122px;
+  --dl-dome: rgba(16, 19, 42, 0.86);      /* dôme sombre sur fond clair */
+  --dl-dome-rim: rgba(255, 255, 255, 0.35);
+  --dl-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --dl-glide: cubic-bezier(0.25, 1, 0.5, 1);
+  font-family: var(--font);
+  color: #ffffff;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .dl { --dl-dome: rgba(255, 255, 255, 0.14); --dl-dome-rim: rgba(255, 255, 255, 0.45); }
+}
+:root[data-theme="dark"] .dl { --dl-dome: rgba(255, 255, 255, 0.14); --dl-dome-rim: rgba(255, 255, 255, 0.45); }
+
+.dl :where(button) { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.dl :focus-visible { outline: 2px solid #ffffff; outline-offset: 3px; border-radius: 50%; }
+
+/* Ouvert : un voile sombre autour de la roue ; la page reste visible au-dessus
+   pour la voir arriver quand on tourne. Le toucher referme le menu. */
+.dl-scrim {
+  position: fixed; inset: 0; z-index: 44;
+  background: radial-gradient(circle at 50% 100%, rgba(6, 8, 18, 0.95) 0, rgba(6, 8, 18, 0.88) 170px, rgba(6, 8, 18, 0.5) 260px, rgba(6, 8, 18, 0.12) 420px, rgba(6, 8, 18, 0.12) 100%);
+  opacity: 0; pointer-events: none; transition: opacity 0.4s ease; touch-action: pan-y;
+}
+.dl.is-open .dl-scrim { opacity: 1; pointer-events: auto; }
+
+.dl-menu { position: fixed; left: 50%; bottom: 0; z-index: 45; width: 0; height: 0; touch-action: pan-y; }
+
+/* ---------- Le dôme et l'étoile ---------- */
+.dl-toggle {
+  position: absolute; left: -32px; bottom: calc(3px + env(safe-area-inset-bottom, 0px));
+  width: 64px; display: flex; flex-direction: column; align-items: center; z-index: 30;
+}
+.dl-star {
+  display: block;
+  filter: drop-shadow(0 0 1px var(--dl-glow)) drop-shadow(0 -5px 15px rgba(var(--dl-glow-rgb), 0.35));
+  transition: filter 0.3s ease, transform 0.3s ease;
+}
+.dl-star:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 1px var(--dl-glow)) drop-shadow(0 -5px 25px rgba(255, 255, 255, 0.5)) drop-shadow(0 0 15px rgba(var(--dl-glow-rgb), 0.8));
+}
+.dl-shape {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  width: 64px; height: 64px;
+  background: var(--dl-dome);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  clip-path: polygon(50% 50%, 57.8% 50.6%, 65.4% 52.4%, 72.7% 55.4%, 79.4% 59.5%, 85.3% 64.6%, 90.4% 70.6%, 94.5% 77.3%, 97.5% 84.5%, 99.3% 92.2%, 100% 100%, 95% 100%, 90% 100%, 85% 100%, 80% 100%, 75% 100%, 70% 100%, 65% 100%, 60% 100%, 55% 100%, 50% 100%, 45% 100%, 40% 100%, 35% 100%, 30% 100%, 25% 100%, 20% 100%, 15% 100%, 10% 100%, 5% 100%, 0% 100%, 0.6% 92.2%, 2.4% 84.5%, 5.4% 77.3%, 9.5% 70.6%, 14.6% 64.6%, 20.6% 59.5%, 27.3% 55.4%, 34.5% 52.4%, 42.2% 50.6%);
+  transition: clip-path 0.5s var(--dl-spring), background 0.3s ease;
+}
+.dl.is-open .dl-shape {
+  clip-path: polygon(50% 0%, 52.7% 8.7%, 55.5% 17.5%, 58.2% 26.2%, 61% 35%, 70.2% 35%, 79.5% 35%, 88.7% 35%, 98% 35%, 90.5% 40.5%, 83% 46%, 75.5% 51.5%, 68% 57%, 70.7% 65.5%, 73.5% 74%, 76.2% 82.5%, 79% 91%, 71.7% 87%, 64.5% 83%, 57.2% 79%, 50% 75%, 42.7% 79%, 35.5% 83%, 28.2% 87%, 21% 91%, 23.7% 82.5%, 26.5% 74%, 29.2% 65.5%, 32% 57%, 24.5% 51.5%, 17% 46%, 9.5% 40.5%, 2% 35%, 11.2% 35%, 20.5% 35%, 29.7% 35%, 39% 35%, 41.7% 26.2%, 44.5% 17.5%, 47.2% 8.7%);
+  background: linear-gradient(180deg, #ffffff, #ffb21a, #ffe1b8, #ff4d17, #ffffff);
+  background-size: 300% 300%;
+  animation: dl-fluid 12s ease-in-out infinite;
+}
+@keyframes dl-fluid { 0%, 100% { background-position: 50% 0%; } 50% { background-position: 50% 100%; } }
+
+.dl-rim { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; transition: opacity 0.3s ease; }
+.dl-rim polygon { fill: none; stroke: var(--dl-dome-rim); stroke-width: 2px; }
+.dl.is-open .dl-rim { opacity: 0; }
+
+.dl-logo { position: relative; z-index: 1; width: 20px; height: 20px; overflow: visible; transform: translateY(18px); transition: transform 0.5s var(--dl-spring); }
+.dl.is-open .dl-logo { transform: translateY(2px); }
+.dl-logo { filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 10px rgba(0, 0, 0, 0.6)); }
+
+.dl-label {
+  margin-top: 6px; font-size: 9px; line-height: 1.2; letter-spacing: 1.5px; font-weight: 600;
+  text-transform: uppercase; text-align: center; white-space: nowrap; color: var(--dl-muted);
+  transition: color 0.3s ease, opacity 0.3s ease;
+}
+.dl-toggle .dl-label { margin-top: 2px; color: var(--ink); text-shadow: 0 1px 6px var(--bg); }
+.dl.is-open .dl-toggle .dl-label { color: #ffd2a8; text-shadow: 0 1px 6px #000; }
+
+/* ---------- La roue ---------- */
+.dl-wheel { position: absolute; left: 0; bottom: 0; width: 0; height: 0; z-index: 5; }
+.dl-item {
+  position: absolute; left: -32px; bottom: -32px; width: 64px; height: 64px;
+  /* Tourner jusqu'à son cran, sortir du centre, puis se redresser. */
+  transform: rotate(calc(var(--dl-base) + var(--dl-wheel))) translateY(0) rotate(calc(-1 * (var(--dl-base) + var(--dl-wheel))));
+  transition: transform 0.6s var(--dl-glide);
+  pointer-events: none;
+}
+.dl.is-open .dl-item {
+  transform: rotate(calc(var(--dl-base) + var(--dl-wheel))) translateY(calc(-1 * var(--dl-radius))) rotate(calc(-1 * (var(--dl-base) + var(--dl-wheel))));
+  pointer-events: auto;
+}
+.dl-item__link {
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  width: 100%; height: 100%; transform: scale(0); opacity: 0; transition: transform 0.2s ease-in, opacity 0.2s;
+}
+.dl.is-open .dl-item__link { transform: scale(1); opacity: 1; transition: transform 0.4s var(--dl-spring), opacity 0.4s; transition-delay: var(--dl-delay); }
+.dl-item__icon {
+  display: flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 40px; height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 50%; background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  color: var(--dl-muted); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); transition: all 0.3s;
+}
+/* Les pages à côté : en retrait, un peu floues. */
+.dl-item:not(.is-active) .dl-item__icon { filter: blur(2px); opacity: 0.45; transform: scale(0.85); }
+.dl-item:not(.is-active) .dl-label { opacity: 0.85; }
+.dl-item__link:hover .dl-item__icon { filter: none; opacity: 1; transform: scale(1.05); color: #fff; border-color: rgba(255, 255, 255, 0.35); background: rgba(255, 255, 255, 0.1); }
+.dl-item__link:hover .dl-label { color: #fff; }
+/* La page affichée : en haut de la roue, cerclée de flamme. */
+.dl-item.is-active .dl-item__icon {
+  transform: scale(1.2); border: 2px solid var(--dl-glow); background: rgba(var(--dl-glow-rgb), 0.16); color: #fff;
+  box-shadow: 0 0 15px rgba(var(--dl-glow-rgb), 0.8), inset 0 0 8px rgba(var(--dl-glow-rgb), 0.4);
+}
+.dl-item.is-active .dl-label { color: #fff; font-weight: 800; text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+
+/* Flèches, pour la souris. Au doigt, on glisse. */
+.dl-step {
+  position: absolute; bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; justify-content: center; width: 30px; height: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important; border-radius: 50%; background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--dl-muted); z-index: 20; transform: scale(0); opacity: 0; transition: all 0.3s var(--dl-spring);
+}
+.dl-step--prev { left: -70px; }
+.dl-step--next { left: 40px; }
+.dl.is-open .dl-step { transform: scale(1); opacity: 1; }
+.dl-step:hover { color: #fff; border-color: rgba(var(--dl-glow-rgb), 0.6) !important; background: rgba(255, 255, 255, 0.1) !important; box-shadow: 0 0 15px rgba(var(--dl-glow-rgb), 0.3); }
+@media (hover: none) and (max-width: 768px) { .dl-step { display: none; } }
+
+/* ---------- Première ouverture : la roue montre qu'elle tourne ---------- */
+.dl-hints { position: absolute; left: 0; bottom: 0; width: 0; height: 0; pointer-events: none; z-index: 10; display: none; }
+.dl.is-open.has-hints .dl-hints { display: block; animation: dl-hints 7.8s forwards; }
+@keyframes dl-hints { 0% { opacity: 0; } 8% { opacity: 1; } 100% { opacity: 0; } }
+.dl-arc {
+  position: absolute; left: -160px; bottom: -160px; width: 320px; height: 320px; border-radius: 50%;
+  border: 0 solid transparent; border-left: 14px solid var(--dl-glow);
+  filter: drop-shadow(0 0 10px var(--dl-glow)) drop-shadow(0 0 4px var(--dl-glow));
+}
+.dl-hint { position: absolute; color: var(--dl-glow); opacity: 0; filter: drop-shadow(0 0 6px var(--dl-glow)); animation: dl-swipe 2.6s 3 forwards; display: block; }
+.dl-hint .ico { width: 100%; height: 100%; }
+.dl-hint--1 { left: -76px; bottom: 133px; --dl-angle: -20deg; width: 10px; height: 10px; }
+.dl-hint--2 { left: -115px; bottom: 101px; --dl-angle: -45deg; width: 16px; height: 16px; animation-delay: 0.2s; }
+.dl-hint--3 { left: -142px; bottom: 57px; --dl-angle: -70deg; width: 24px; height: 24px; animation-delay: 0.4s; }
+.dl-hint--4 { left: -153px; bottom: 10px; --dl-angle: -90deg; width: 34px; height: 34px; animation-delay: 0.6s; }
+@keyframes dl-swipe {
+  0% { opacity: 0; transform: rotate(var(--dl-angle)) translateX(15px); }
+  15% { opacity: 1; transform: rotate(var(--dl-angle)) translateX(0); }
+  50%, 100% { opacity: 0; transform: rotate(var(--dl-angle)) translateX(-15px); }
+}
+.dl.is-open.has-hints .dl-wheel { animation: dl-tilt 7.8s ease-in-out forwards; }
+@keyframes dl-tilt {
+  0%, 33.33%, 66.66%, 100% { transform: rotate(0deg); }
+  16.66% { transform: rotate(-4deg); }
+  50% { transform: rotate(-2.5deg); }
+  83.33% { transform: rotate(-1deg); }
+}
+
+/* ---------- La page entre en arc, du côté d'où vient son icône ---------- */
+.arc-in { transform-origin: 50% calc(100vh - 40px); animation: arc-in 0.6s cubic-bezier(0.25, 1, 0.5, 1) both; }
+.arc-in.from-right { --arc-from: 50deg; }
+.arc-in.from-left { --arc-from: -50deg; }
+@keyframes arc-in { from { transform: rotate(var(--arc-from)); opacity: 0; } to { transform: none; opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .dl *, .dl *::before { animation: none !important; transition-duration: 0.01ms !important; }
+  .arc-in { animation: none; }
+}
+
+/* Le tuteur ouvert occupe le bas de l'écran : on range le cadran */
+body:has(#chat:not([hidden])) .dl { display: none; }
+
+/* Un fondu au bas de l'écran : le contenu s'efface sous le dôme au lieu de le heurter */
+.dl::before {
+  content: ""; position: fixed; left: 0; right: 0; bottom: 0; height: 84px; z-index: 43; pointer-events: none;
+  background: linear-gradient(to top, var(--bg) 18%, color-mix(in srgb, var(--bg) 70%, transparent) 55%, transparent);
+}

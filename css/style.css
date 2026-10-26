@@ -35,14 +35,20 @@
   --python: #3776ab;
   --cobol: #8e44ad;
 
+  /* Bandeau de correction (vert = juste, rouge = faux) */
+  --ok-bg: #d7ffb8;
+  --ok-fg: #46a302;
+  --ko-bg: #ffdfe0;
+  --ko-fg: #ea2b2b;
+
   --radius: 16px;
   --font: "Nunito", system-ui, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
-/* Thème sombre : suit automatiquement le réglage du système */
+/* Thème sombre : suit le réglage du système (sauf si un thème clair est forcé) */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #131f24;
     --surface: #1b2a31;
     --text: #f1f7fb;
@@ -50,8 +56,37 @@
     --border: #37464f;
     --border-strong: #4b5c66;
     --code-bg: #0e171b;
+    --ok-bg: #1f3a10;
+    --ok-fg: #93e35b;
+    --ko-bg: #3d1a1c;
+    --ko-fg: #ff8a8a;
+    color-scheme: dark;
   }
 }
+/* Mêmes valeurs quand le thème sombre est choisi explicitement */
+:root[data-theme="dark"] {
+  --bg: #131f24;
+  --surface: #1b2a31;
+  --text: #f1f7fb;
+  --muted: #9fb0b9;
+  --border: #37464f;
+  --border-strong: #4b5c66;
+  --code-bg: #0e171b;
+  --ok-bg: #1f3a10;
+  --ok-fg: #93e35b;
+  --ko-bg: #3d1a1c;
+  --ko-fg: #ff8a8a;
+  color-scheme: dark;
+}
+
+/* Couleurs de la coloration syntaxique (Prism) — les blocs de code sont toujours sombres */
+pre[class*="language-"], .ex-code { color: #e6e6e6; text-shadow: none; }
+.token.comment { color: #7f8c98; font-style: italic; }
+.token.string { color: #9ece6a; }
+.token.number, .token.boolean { color: #ff9e64; }
+.token.keyword { color: #c792ea; }
+.token.builtin, .token.function { color: #7dcfff; }
+.token.operator, .token.punctuation { color: #c0caf5; }
 
 /* ---------- 2. Base ---------- */
 * { box-sizing: border-box; }
@@ -197,7 +232,10 @@ button { font-family: inherit; cursor: pointer; }
 }
 .tryit-head .actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .tryit-head .btn { padding: 7px 12px; font-size: .8rem; }
-.tryit pre[class*="language-"] { margin: 0; border-radius: 0; background: var(--code-bg); font-size: .9rem; }
+.tryit pre[class*="language-"] {
+  margin: 0; padding: 14px; overflow-x: auto; cursor: text;
+  background: var(--code-bg); font-family: var(--mono); font-size: .9rem; line-height: 1.5; tab-size: 4;
+}
 .tryit textarea {
   width: 100%; min-height: 180px; border: 0; padding: 14px; resize: vertical;
   font-family: var(--mono); font-size: .9rem; background: var(--code-bg); color: #e6e6e6;
@@ -250,12 +288,8 @@ button { font-family: inherit; cursor: pointer; }
   padding: 18px 20px;
 }
 .check-inner { max-width: 920px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.check-bar.ok { background: #d7ffb8; border-color: #d7ffb8; color: var(--green-dark); }
-.check-bar.ko { background: #ffdfe0; border-color: #ffdfe0; color: var(--red-dark); }
-@media (prefers-color-scheme: dark) {
-  .check-bar.ok { background: #1f3a10; border-color: #1f3a10; color: #93e35b; }
-  .check-bar.ko { background: #3d1a1c; border-color: #3d1a1c; color: #ff8a8a; }
-}
+.check-bar.ok { background: var(--ok-bg); border-color: var(--ok-bg); color: var(--ok-fg); }
+.check-bar.ko { background: var(--ko-bg); border-color: var(--ko-bg); color: var(--ko-fg); }
 .feedback strong { font-size: 1.25rem; display: block; }
 .feedback p { margin: 4px 0 0; color: var(--text); }
 .check-bar .btn-ask { margin-right: 8px; }

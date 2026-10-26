@@ -12,7 +12,8 @@
    ========================================================================== */
 
 const Runner = (() => {
-  const PYODIDE_URL = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/";
+  // On passe par le paquet npm de Pyodide sur jsDelivr (mêmes fichiers que le CDN officiel)
+  const PYODIDE_URL = "https://cdn.jsdelivr.net/npm/pyodide@0.26.4/";
   let pyodidePromise = null; // promesse partagée : un seul chargement même si on clique plusieurs fois
 
   /** Charge un script externe et renvoie une promesse. */

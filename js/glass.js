@@ -68,17 +68,17 @@ const Glass = (() => {
    * Crée un nombre roulant.
    * @returns {{el: HTMLElement, set: (value:number, from?:number) => void}}
    */
-  function ticker({ digits, unit, label, cls }) {
-    const el = document.createElement("p");
-    el.className = `gl-num ${cls}`;
+  function ticker({ digits, unit = "", label = "", cls = "", inline = false }) {
+    const el = document.createElement(inline ? "span" : "p");
+    el.className = inline ? `gl-inline ${cls}` : `gl-num ${cls}`;
     el.innerHTML = `<span class="sr-only"></span>${Array.from({ length: digits }, () =>
-      `<span class="gl-digit" aria-hidden="true"><span class="gl-sizer">0</span><span class="gl-glyph a">0</span><span class="gl-glyph b">0</span></span>`).join("")}<span class="gl-unit" aria-hidden="true">${unit}</span>`;
+      `<span class="gl-digit" aria-hidden="true"><span class="gl-sizer">0</span><span class="gl-glyph a">0</span><span class="gl-glyph b">0</span></span>`).join("")}${unit ? `<span class="gl-unit" aria-hidden="true">${unit}</span>` : ""}`;
     const cols = [...el.querySelectorAll(".gl-digit")];
 
     function set(value, from = value) {
       const to = String(Math.max(0, Math.round(value))).padStart(digits, "0").slice(-digits);
       const fr = String(Math.max(0, Math.round(from))).padStart(digits, "0").slice(-digits);
-      el.querySelector(".sr-only").textContent = `${label} : ${Math.round(value)} ${unit}`;
+      el.querySelector(".sr-only").textContent = label ? `${label} : ${Math.round(value)} ${unit}` : `${Math.round(value)}${unit ? ` ${unit}` : ""}`;
       cols.forEach((col, i) => {
         const [a, b] = col.querySelectorAll(".gl-glyph");
         if (fr[i] === to[i] || reduced()) {
@@ -265,6 +265,55 @@ const Glass = (() => {
     return () => cleanups.forEach((f) => f());
   }
 
-  return { mount };
+  /* ---------------- Partout ailleurs : les nombres .num roulent ---------------- */
+  /**
+   * Transforme chaque nombre affiché (.num) en compteur rayé qui roule depuis
+   * la dernière valeur vue (mémorisée pour la session), ou depuis 0 la
+   * première fois. Les gros nombres (≥ 22 px) reçoivent les rayures.
+   */
+  let memory = null;
+  function remember() {
+    if (memory) return memory;
+    try { memory = JSON.parse(sessionStorage.getItem("codestreak:nums") || "{}"); } catch (e) { memory = {}; }
+    return memory;
+  }
+  function rollAll(root = document) {
+    const mem = remember();
+    let changed = false;
+    root.querySelectorAll(".num").forEach((el) => {
+      if (el.dataset.rolled || el.closest(".gl-card")) return;
+      el.dataset.rolled = "1";
+      const node = [...el.childNodes].find((n) => n.nodeType === 3 && n.textContent.trim());
+      if (!node) return;
+      const m = node.textContent.match(/^(\s*[+]?)(\d{1,6})([\s\S]*)$/);
+      if (!m) return;
+      const to = Number(m[2]);
+      const scope = el.closest("[aria-label]")?.getAttribute("aria-label") || "";
+      const key = el.dataset.roll || `${scope}|${(el.parentElement?.textContent || "").replace(/\d+/g, "#").trim().slice(0, 60)}`;
+      const from = typeof mem[key] === "number" ? mem[key] : 0;
+      mem[key] = to; changed = true;
+      const t = ticker({ digits: m[2].length, inline: true });
+      if (parseFloat(getComputedStyle(el).fontSize) >= 22) t.el.classList.add("striped");
+      const frag = document.createDocumentFragment();
+      if (m[1]) frag.append(m[1]);
+      frag.append(t.el);
+      if (m[3]) frag.append(m[3]);
+      node.replaceWith(frag);
+      t.set(to, Math.min(from, 10 ** m[2].length - 1));
+    });
+    if (changed) { try { sessionStorage.setItem("codestreak:nums", JSON.stringify(mem)); } catch (e) { /* stockage indisponible */ } }
+  }
+
+  /** Surveille un conteneur : tout nouveau nombre rendu se met à rouler. */
+  function watch(el) {
+    if (!el) return;
+    let queued = false;
+    const run = () => { queued = false; rollAll(el); };
+    new MutationObserver(() => { if (!queued) { queued = true; requestAnimationFrame(run); } })
+      .observe(el, { childList: true, subtree: true });
+    rollAll(el);
+  }
+
+  return { mount, ticker, rollAll, watch };
 })();
 window.Glass = Glass;

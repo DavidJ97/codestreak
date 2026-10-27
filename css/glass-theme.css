@@ -1,0 +1,168 @@
+/* ============================================================================
+   glass-theme.css — Le langage « verre dépoli » appliqué à toute l'app
+   ----------------------------------------------------------------------------
+   Même langage que le tableau de bord de l'accueil (glass.css) :
+     - une scène fixe éclairée cobalt (gauche) et orange (droite) derrière tout ;
+     - toutes les surfaces en verre : voile sombre, flou, saturation, liseré
+       lumineux en haut à gauche ;
+     - une seule famille, Inter (le code reste en Geist Mono) ;
+     - les nombres rayés qui roulent (voir Glass.rollAll dans glass.js).
+
+   Choix assumé : un seul thème, sombre. Ce fichier est chargé en dernier et
+   redéfinit les tokens de style.css avec les mêmes sélecteurs, pour gagner
+   dans les trois états de thème (système, clair forcé, sombre forcé).
+   ========================================================================== */
+
+:root,
+:root[data-theme="light"],
+:root[data-theme="dark"] {
+  --bg: #0b1626;
+  --surface: rgba(18, 16, 32, 0.34);
+  --surface-2: rgba(255, 255, 255, 0.07);
+  --ink: #ffffff;
+  --ink-soft: rgba(255, 255, 255, 0.85);
+  --muted: rgba(255, 255, 255, 0.62);
+  --line: rgba(255, 255, 255, 0.14);
+  --line-strong: rgba(255, 255, 255, 0.28);
+
+  --py: #8fb0ff;
+  --py-soft: rgba(111, 147, 255, 0.18);
+  --cb: #ffb85c;
+  --cb-soft: rgba(255, 173, 61, 0.16);
+  --flame-a: #ffc891;
+  --flame-b: #ff7a3d;
+  --flame-soft: rgba(255, 122, 61, 0.18);
+  --ice: #8fd8ff;
+  --good: #5ee39a;
+  --good-soft: rgba(94, 227, 154, 0.16);
+  --bad: #ff8a8a;
+  --bad-soft: rgba(255, 107, 110, 0.18);
+  --ok-bg: rgba(94, 227, 154, 0.16);
+  --ok-fg: #5ee39a;
+  --ko-bg: rgba(255, 107, 110, 0.18);
+  --ko-fg: #ff8a8a;
+
+  --code-bg: rgba(5, 8, 18, 0.72);
+  --code-fg: #e6e9f5;
+  --code-line: rgba(255, 255, 255, 0.1);
+  --btn-bg: #ffffff;
+  --btn-fg: #0b1626;
+  --shadow: 0 10px 30px rgba(4, 8, 20, 0.28);
+
+  --font: "Inter", system-ui, sans-serif;
+  --display: "Inter", system-ui, sans-serif;
+
+  /* Le verre */
+  --glass-tint: rgba(18, 16, 32, 0.24);
+  --glass-blur: 28px;
+  --rim-bright: rgba(255, 255, 255, 0.8);
+  --rim-mid: rgba(255, 255, 255, 0.35);
+  --rim-soft: rgba(255, 255, 255, 0.06);
+  --rim-low: rgba(255, 255, 255, 0.3);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0b1626; --surface: rgba(18, 16, 32, 0.34); --ink: #ffffff; color-scheme: dark; }
+}
+body { background: var(--bg); color: var(--ink); font-family: var(--font); }
+
+/* ---------- La scène, fixe, derrière toute l'app ---------- */
+.app-scene { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: var(--bg); }
+.app-scene i { position: absolute; border-radius: 50%; filter: blur(60px); animation: gl-drift 22s ease-in-out infinite alternate; }
+.app-scene .b1 { width: 70vmax; aspect-ratio: 1; left: -22vmax; top: -18vmax; background: radial-gradient(circle, #2f63ff 0%, #1336b8 42%, transparent 70%); opacity: .85; }
+.app-scene .b2 { width: 62vmax; aspect-ratio: 1; right: -20vmax; top: 18vh; background: radial-gradient(circle, #ff4d17 0%, #b8360c 40%, transparent 70%); opacity: .75; animation-delay: -7s; }
+.app-scene .b3 { width: 40vmax; aspect-ratio: 1; left: 30vw; bottom: -22vmax; background: radial-gradient(circle, #ffb21a 0%, transparent 65%); opacity: .35; animation-delay: -13s; }
+.app-scene svg { position: absolute; right: 6vw; top: 50%; width: 38vmax; translate: 0 -50%; fill: #ffd0a0; opacity: .12; filter: blur(3px); }
+
+/* ---------- Typographie : une seule famille ---------- */
+h1 { font-weight: 600; letter-spacing: -0.035em; }
+h2, h3 { font-weight: 600; letter-spacing: -0.02em; }
+.theory h2, .exercise h2, .course h3, .career h3 { font-family: var(--font); font-weight: 600; }
+.num { font-family: var(--font); font-weight: 450; font-feature-settings: "tnum"; letter-spacing: -0.01em; }
+
+/* ---------- Toutes les surfaces en verre ---------- */
+.card, .course, .lesson-card, .career, .cert, .entry, .watch, .kpi, .proj, .proj-band,
+.result-stat, .table-wrap, .sources-box, .viz, .ide, .chat, .modal-box, .sidebar, .topbar, .dock,
+.continue, .unit, .mini-stat, .goal-opt, .choice, .line-chip, .mk, .tip, .empty, .slots {
+  background: var(--glass-tint);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+  border-color: transparent;
+  box-shadow: var(--shadow);
+}
+/* Liseré lumineux (comme les cartes de l'accueil) */
+.card, .course, .lesson-card, .career, .cert, .entry, .watch, .kpi, .proj, .proj-band,
+.result-stat, .table-wrap, .sources-box, .viz, .ide, .modal-box, .continue, .unit,
+.mini-stat, .choice, .mk, .tip {
+  position: relative;
+}
+:where(.card, .course, .lesson-card, .career, .cert, .entry, .watch, .kpi, .proj, .proj-band,
+  .result-stat, .table-wrap, .sources-box, .viz, .ide, .chat, .modal-box, .continue, .unit,
+  .mini-stat, .choice, .mk, .tip)::after {
+  content: ""; position: absolute; inset: 0; padding: 1px; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(160deg, var(--rim-bright) 0%, var(--rim-mid) 18%, var(--rim-soft) 55%, var(--rim-low) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+.sidebar { border-right: 1px solid var(--line); box-shadow: none; }
+.topbar { background: rgba(11, 22, 38, 0.35); border-bottom: 1px solid var(--line); box-shadow: none; }
+.dock { background: rgba(11, 22, 38, 0.55); }
+.dock.ok { background: rgba(20, 70, 45, 0.6); }
+.dock.ko { background: rgba(90, 20, 26, 0.6); }
+
+/* Le bandeau d'un cours : verre teinté de la couleur du cours */
+.unit { background: linear-gradient(135deg, color-mix(in srgb, var(--cc, var(--py)) 45%, transparent), rgba(18, 16, 32, 0.25)); }
+.unit .eyebrow, .unit p { color: rgba(255, 255, 255, 0.8); }
+
+/* Le bouton « Reprendre » : verre clair */
+.continue { background: rgba(255, 255, 255, 0.12); color: var(--ink); }
+.continue .tile { background: rgba(255, 255, 255, 0.14); }
+.continue .go { background: #ffffff; color: #0b1626; }
+
+/* Pastilles, champs et onglets : verre léger */
+.pill, .filter, .field input, .field select, .chat-form textarea, .cert-foot select, .cert-foot input,
+.journal-form textarea, .vz-seg button, .vz-tabs, .vz-choice, .mk-b {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: var(--ink);
+}
+.filter.on, .vz-seg button.on { background: #ffffff; color: #0b1626; }
+.vz-tabs button.on { background: rgba(255, 255, 255, 0.18); color: #fff; box-shadow: none; }
+
+/* Le code sur verre */
+.ide, .ex-code, .vz-code, .vz-pre, .msg pre { background: var(--code-bg); }
+.vz-console pre { background: rgba(0, 0, 0, 0.55); }
+
+/* Le terrain de jeu des illustrations : verre, avec un quadrillage discret */
+.viz { background:
+  radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.08) 1px, transparent 0) 0 0 / 18px 18px,
+  var(--glass-tint); }
+.vz-box, .vz-node, .vz-cell b, .mk-card, .vz-ask, .vz-kv span, .vz-truth span, .vz-risk, .vz-scale span {
+  background: rgba(255, 255, 255, 0.06);
+}
+.vz-name { background: #ffffff; color: #0b1626; }
+.mk { background: rgba(11, 22, 38, 0.6); }
+.mk-msg.user { background: #ffffff; color: #0b1626; }
+
+/* Le tableau de bord de l'accueil utilise désormais la scène commune */
+.glass-band { background: transparent; padding-block: 0; overflow: visible; }
+.glass-band .gl-backdrop { display: none; }
+
+/* ---------- Nombres rayés (rendu par Glass.rollAll) ---------- */
+.gl-inline { display: inline-flex; align-items: baseline; --u: calc(1em / 70); }
+.gl-inline .gl-digit { position: relative; display: inline-block; height: 1.2em; line-height: 1.2em; clip-path: inset(0); vertical-align: bottom; }
+.gl-inline .gl-glyph { position: absolute; inset: 0; will-change: transform; -webkit-mask-image: none; mask-image: none; }
+.gl-inline .gl-glyph.b { transform: translateY(100%); }
+.gl-inline.striped .gl-glyph {
+  -webkit-mask-image: repeating-linear-gradient(to bottom, #000 0 .034em, transparent .034em .06em);
+  mask-image: repeating-linear-gradient(to bottom, #000 0 .034em, transparent .034em .06em);
+  -webkit-mask-position: 0 .29em;
+  mask-position: 0 .29em;
+}
+
+@media (prefers-reduced-motion: reduce) { .app-scene i { animation: none; } }
+
+/* Les compteurs gardent la taille du nombre qu'ils remplacent
+   (des règles comme « .kpi span:last-child » visaient aussi leurs chiffres) */
+.gl-inline, .gl-inline span { font-size: inherit !important; color: inherit !important; font-weight: inherit; letter-spacing: inherit; }

@@ -166,9 +166,9 @@ const App = (() => {
     const s = Streak.state;
     const off = Streak.practicedToday() ? "" : " off"; // flamme grise tant qu'on n'a pas pratiqué aujourd'hui
     document.getElementById("stats").innerHTML = `
-      <span class="pill flame${off}" title="Streak : jours consécutifs">${icon("flame", 17)}${s.streak}</span>
-      <span class="pill xp" title="XP total">${icon("bolt", 17)}${s.totalXp}</span>
-      <span class="pill ice" title="Gels de streak">${icon("snowflake", 17)}${s.freezes}</span>`;
+      <span class="pill flame${off}" title="Streak : jours consécutifs">${icon("flame", 17)}<span class="num" data-roll="pill-streak">${s.streak}</span></span>
+      <span class="pill xp" title="XP total">${icon("bolt", 17)}<span class="num" data-roll="pill-xp">${s.totalXp}</span></span>
+      <span class="pill ice" title="Gels de streak">${icon("snowflake", 17)}<span class="num" data-roll="pill-ice">${s.freezes}</span></span>`;
 
     document.getElementById("rail").innerHTML = streakCard() + goalCard();
     document.getElementById("sidebar-streak").innerHTML = `
@@ -1464,6 +1464,8 @@ const App = (() => {
     Chat.init();
     renderStats();
     if (window.Dial) Dial.init(goPage); // le cadran rotatif, navigation principale
+    // Les nombres rayés qui roulent, partout (js/glass.js)
+    if (window.Glass) ["view", "stats", "rail", "sidebar-streak"].forEach((id) => Glass.watch(document.getElementById(id)));
     renderHome();
   }
 

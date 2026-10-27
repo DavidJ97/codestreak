@@ -138,6 +138,7 @@ const App = (() => {
   /** Mode focus (leçon) on/off + onglet actif dans la navigation. */
   function setChrome({ focus = false, nav = null, crumb = "" } = {}) {
     document.body.classList.toggle("focus", focus);
+    document.body.classList.toggle("is-home", nav === "home"); // l'accueil a son propre tableau de bord
     document.querySelectorAll("[data-nav]").forEach((el) => el.classList.toggle("active", el.dataset.nav === nav));
     document.getElementById("crumb").innerHTML = crumb;
     window.scrollTo({ top: 0 });
@@ -293,10 +294,23 @@ const App = (() => {
           <p>Des fondations (Python, COBOL) à l'avant-garde de l'IA (UX, AI engineering, linguistique, sécurité), avec des sources officielles et des projets qui se montrent en entrevue.</p>
         </header>
         ${cont}
-        <div class="rail-inline">${streakCard()}${goalCard()}</div>
+        <section class="glass-band" id="glass" aria-label="Ta progression"></section>
         ${projBand}
         ${sections}
       </div>`;
+    // Tableau de bord en verre (js/glass.js) : série, objectif du jour, XP, semaine
+    const glass = document.getElementById("glass");
+    if (glass && window.Glass) {
+      const st = Streak.state;
+      const today = Streak._internals.todayKey();
+      const day = (n) => Streak._internals.addDays(today, -n);
+      Glass.mount(glass, {
+        streak: st.streak, longest: st.longest, freezes: st.freezes, practiced: Streak.practicedToday(),
+        todayXp: Streak.todayXp(), goal: st.dailyGoal, totalXp: st.totalXp,
+        days14: Array.from({ length: 14 }, (_, k) => st.xpByDay[day(13 - k)] || 0),
+        week: Array.from({ length: 7 }, (_, k) => ({ xp: st.xpByDay[day(6 - k)] || 0 })),
+      });
+    }
   }
 
   /* ======================================================================

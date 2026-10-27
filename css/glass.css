@@ -1,0 +1,184 @@
+/* ============================================================================
+   glass.css — Tableau de bord « verre dépoli » (accueil)
+   ----------------------------------------------------------------------------
+   Repris d'un design de widgets en verre : cartes floutées sur une scène
+   éclairée bleu (gauche) et orange (droite), liseré lumineux en haut à gauche,
+   gros chiffres Inter 450 à chasse fixe, rayés horizontalement.
+
+   Échelle : 1 unité de design = --u. La grappe fait 640 × 610 unités et
+   s'adapte à la largeur du bandeau (requête de conteneur).
+   ========================================================================== */
+
+.glass-band {
+  /* Couleurs propres au bandeau : il est toujours sombre, quel que soit le thème */
+  --gl-ink: #0b1626;
+  --gl-text: #ffffff;
+  --gl-unit: rgba(255, 255, 255, 0.85);
+  --gl-dim: rgba(255, 255, 255, 0.65);
+  --gl-live: rgba(255, 255, 255, 0.7);
+  --gl-accent: #ffc891;
+  --gl-line: rgba(255, 255, 255, 0.32);
+  --gl-track: rgba(255, 255, 255, 0.18);
+  --gl-tint: rgba(18, 16, 32, 0.24);
+  --gl-rim-bright: rgba(255, 255, 255, 0.8);
+  --gl-rim-mid: rgba(255, 255, 255, 0.35);
+  --gl-rim-soft: rgba(255, 255, 255, 0.06);
+  --gl-rim-low: rgba(255, 255, 255, 0.3);
+  --gl-shadow: rgba(4, 8, 20, 0.28);
+  --gl-font: "Inter", system-ui, sans-serif;
+
+  container-type: inline-size;
+  position: relative; isolation: isolate; overflow: hidden;
+  display: grid; place-items: center;
+  padding-block: clamp(20px, 4cqw, 40px);
+  border-radius: var(--r-lg);
+  background: var(--gl-ink);
+  color: var(--gl-text);
+  font-family: var(--gl-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- La scène derrière le verre : lumière cobalt et orange ---------- */
+.gl-backdrop { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
+.gl-backdrop i { position: absolute; border-radius: 50%; filter: blur(40px); opacity: .9; animation: gl-drift 18s ease-in-out infinite alternate; }
+.gl-backdrop .b1 { width: 70%; aspect-ratio: 1; left: -18%; top: -10%; background: radial-gradient(circle, #2f63ff 0%, #1336b8 45%, transparent 70%); }
+.gl-backdrop .b2 { width: 65%; aspect-ratio: 1; right: -15%; top: 15%; background: radial-gradient(circle, #ff4d17 0%, #c2410c 40%, transparent 70%); animation-delay: -6s; }
+.gl-backdrop .b3 { width: 40%; aspect-ratio: 1; left: 35%; bottom: -20%; background: radial-gradient(circle, #ffb21a 0%, transparent 65%); opacity: .55; animation-delay: -11s; }
+/* Une grande flamme floue au centre : c'est elle que le verre déforme */
+.gl-mark { position: absolute; left: 50%; top: 50%; width: 62%; translate: -50% -48%; fill: #ffd0a0; opacity: .5; filter: blur(2px); }
+@keyframes gl-drift { to { transform: translate(6%, 5%) scale(1.08); } }
+
+/* ---------- La grappe de cartes ---------- */
+.gl-cluster {
+  --u: min(calc((100cqw - 32px) / 640), 1.15px);
+  --label-size: max(calc(18.5 * var(--u)), 12px);
+  --unit-size: max(calc(19 * var(--u)), 11px);
+  --small-size: max(calc(15.5 * var(--u)), 10.5px);
+  --live-size: max(calc(13 * var(--u)), 9px);
+  --ring-size: max(calc(12.5 * var(--u)), 9px);
+  --pad: calc(26 * var(--u));
+  --radius: calc(32 * var(--u));
+
+  display: grid;
+  grid-template-columns: calc(313 * var(--u)) calc(313 * var(--u));
+  grid-template-rows: calc(193 * var(--u)) calc(193 * var(--u)) calc(196 * var(--u));
+  gap: calc(14 * var(--u));
+  width: calc(640 * var(--u));
+}
+
+.gl-card {
+  --in: 0;
+  position: relative; min-width: 0;
+  border-radius: var(--radius);
+  background: var(--gl-tint);
+  backdrop-filter: blur(calc(40 * var(--u))) saturate(1.5);
+  -webkit-backdrop-filter: blur(calc(40 * var(--u))) saturate(1.5);
+  box-shadow: 0 calc(10 * var(--u)) calc(30 * var(--u)) var(--gl-shadow);
+  opacity: var(--in);
+  transform: translateY(calc((1 - var(--in)) * 18 * var(--u)));
+}
+/* Liseré : brillant en haut à gauche, presque absent au milieu, léger en bas à droite */
+.gl-card::before {
+  content: ""; position: absolute; inset: 0; padding: 1px; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(160deg, var(--gl-rim-bright) 0%, var(--gl-rim-mid) 18%, var(--gl-rim-soft) 55%, var(--gl-rim-low) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+.gl-streak { grid-row: 1 / 3; grid-column: 1; }
+.gl-today { grid-row: 1; grid-column: 2; }
+.gl-xp { grid-row: 2; grid-column: 2; }
+.gl-week { grid-row: 3; grid-column: 1 / 3; }
+
+/* En-tête et pied de carte */
+.gl-head {
+  position: absolute; top: calc(27.5 * var(--u)); left: var(--pad); right: var(--pad);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.gl-label { margin: 0; font-size: var(--label-size); font-weight: 600; letter-spacing: -0.01em; line-height: 1; white-space: nowrap; color: var(--gl-text); font-family: var(--gl-font); }
+.gl-foot {
+  position: absolute; bottom: calc(26 * var(--u)); left: var(--pad); right: var(--pad);
+  display: flex; justify-content: space-between; align-items: flex-end;
+}
+.gl-small { margin: 0; font-size: var(--small-size); line-height: 1; color: var(--gl-dim); white-space: nowrap; }
+.gl-label, .gl-small, .gl-live span, .gl-ring-txt { text-box: trim-both cap alphabetic; }
+@supports not (text-box: trim-both cap alphabetic) {
+  .gl-label, .gl-small, .gl-live span, .gl-ring-txt { margin-block: -0.1358em -0.1367em; }
+}
+
+/* Indicateur « Aujourd'hui » */
+.gl-live { display: flex; align-items: center; gap: calc(8 * var(--u)); }
+.gl-live i { width: max(calc(5 * var(--u)), 4px); aspect-ratio: 1; border-radius: 50%; background: var(--gl-accent); opacity: .38; }
+.gl-live.on i { opacity: 1; box-shadow: 0 0 calc(8 * var(--u)) var(--gl-accent); animation: gl-blink 1.6s ease-in-out infinite; }
+.gl-live span { display: block; font-size: var(--live-size); font-weight: 600; letter-spacing: .08em; margin-right: -.08em; text-transform: uppercase; color: var(--gl-live); line-height: 1; }
+@keyframes gl-blink { 50% { opacity: .3; } }
+
+/* ---------- Gros chiffres rayés qui roulent ---------- */
+.gl-num {
+  position: absolute; margin: 0;
+  top: var(--top); left: var(--x);
+  font-size: var(--size); font-weight: 450; line-height: var(--box);
+  font-feature-settings: "tnum"; white-space: nowrap; color: var(--gl-text);
+  font-family: var(--gl-font);
+}
+.gl-num--streak { --size: calc(104 * var(--u)); --box: calc(104 * var(--u)); --top: calc(78 * var(--u)); --x: calc(18.7 * var(--u)); --unit-x: calc(4 * var(--u)); --unit-raise: calc(6.5 * var(--u)); }
+.gl-num--today  { --size: calc(80 * var(--u));  --box: calc(84 * var(--u));  --top: calc(62 * var(--u)); --x: calc(25.2 * var(--u)); --unit-x: calc(3 * var(--u)); --unit-raise: calc(4.5 * var(--u)); }
+.gl-num--xp     { --size: calc(68 * var(--u));  --box: calc(70 * var(--u));  --top: calc(52 * var(--u)); --x: calc(20.6 * var(--u)); --unit-x: calc(4 * var(--u)); --unit-raise: calc(5.5 * var(--u)); }
+.gl-num--week   { --size: calc(82 * var(--u));  --box: calc(84 * var(--u));  --top: calc(62 * var(--u)); --x: calc(20.3 * var(--u)); --unit-x: calc(4 * var(--u)); --unit-raise: calc(3.5 * var(--u)); }
+
+.gl-digit { position: relative; display: inline-block; height: var(--box); clip-path: inset(0); }
+.gl-sizer { visibility: hidden; }
+.gl-glyph {
+  position: absolute; inset: 0; will-change: transform;
+  /* Les rayures voyagent avec le chiffre quand il roule */
+  -webkit-mask-image: repeating-linear-gradient(to bottom, #000 0 calc(2.4 * var(--u)), transparent calc(2.4 * var(--u)) calc(4.17 * var(--u)));
+  mask-image: repeating-linear-gradient(to bottom, #000 0 calc(2.4 * var(--u)), transparent calc(2.4 * var(--u)) calc(4.17 * var(--u)));
+  -webkit-mask-position: 0 calc((var(--box) - 1.2109 * var(--size)) / 2 + 0.2412 * var(--size));
+  mask-position: 0 calc((var(--box) - 1.2109 * var(--size)) / 2 + 0.2412 * var(--size));
+}
+.gl-glyph.b { transform: translateY(100%); }
+.gl-unit {
+  position: relative; top: calc(-1 * var(--unit-raise)); margin-left: var(--unit-x);
+  font-size: var(--unit-size); font-weight: 400; line-height: 1; font-feature-settings: normal; color: var(--gl-unit);
+}
+
+/* ---------- Série : tracé façon ECG ---------- */
+.gl-ecg {
+  position: absolute; left: calc(var(--pad) - 10 * var(--u));
+  top: calc(205 * var(--u)); width: calc(281 * var(--u)); height: calc(110 * var(--u));
+}
+
+/* ---------- Aujourd'hui : anneau d'objectif ---------- */
+.gl-ring {
+  position: absolute; right: calc(28 * var(--u)); top: calc(103.5 * var(--u) - 28 * var(--u));
+  width: calc(56 * var(--u)); height: calc(56 * var(--u));
+  display: grid; place-items: center; transform-origin: 50% 50%;
+}
+.gl-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.gl-ring .track { fill: none; stroke: var(--gl-track); stroke-width: 1.2; }
+.gl-ring .arc { fill: none; stroke: var(--gl-text); stroke-width: 2; stroke-linecap: round; }
+.gl-ring-txt { position: relative; display: block; font-size: var(--ring-size); font-weight: 600; letter-spacing: .04em; margin-right: -.04em; line-height: 1; color: var(--gl-unit); font-feature-settings: "tnum"; }
+
+/* ---------- XP total : règle graduée ---------- */
+.gl-scale { position: absolute; left: var(--pad); right: var(--pad); top: calc(136 * var(--u)); height: 1px; background: var(--gl-line); }
+.gl-scale i { position: absolute; top: 50%; width: 1px; height: calc(5 * var(--u)); translate: -50% -50%; background: var(--gl-line); }
+.gl-scale i.major { height: calc(9 * var(--u)); }
+.gl-marker {
+  position: absolute; top: 50%; left: 0; translate: -50% -50%;
+  width: calc(3 * var(--u)); height: calc(20 * var(--u)); border-radius: calc(3 * var(--u));
+  background: var(--gl-accent); box-shadow: 0 0 calc(6 * var(--u)) color-mix(in srgb, var(--gl-accent) 60%, transparent);
+}
+
+/* ---------- Semaine : forme d'onde ---------- */
+.gl-wave {
+  position: absolute; left: calc(236 * var(--u)); top: calc(50% - 46 * var(--u));
+  width: calc(378 * var(--u)); height: calc(92 * var(--u));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gl-backdrop i, .gl-live.on i { animation: none; }
+}
+
+/* Sur l'accueil, le tableau de bord en verre remplace le rail de droite */
+.is-home .rail { display: none; }
+@media (min-width: 1181px) { .is-home .shell { grid-template-columns: var(--sidebar) minmax(0, 1fr); } }

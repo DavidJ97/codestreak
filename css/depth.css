@@ -1,12 +1,9 @@
 /* ============================================================================
-   depth.css — La 3D : scène WebGL, cartes en relief, profondeur
+   depth.css — La 3D : cartes en relief, profondeur
    ========================================================================== */
 
-/* La scène WebGL, fixe, derrière tout (au-dessus du décor CSS de secours) */
-.scene3d { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; display: block; }
-/* Quand la 3D tourne, le décor CSS ne garde que ses lueurs de couleur */
-.has-3d .app-scene svg { display: none; }
-.has-3d .app-scene i { opacity: .45; }
+/* Pas de flamme en fond : seules les lueurs de couleur restent, les cartes font la 3D */
+.app-scene svg { display: none; }
 
 /* ---------- Chaque carte est un objet 3D (tilt.js) ---------- */
 /* Une plaque de verre épaisse : inclinée selon sa place dans l'écran (--sx),
@@ -67,6 +64,3 @@
 @media (prefers-reduced-motion: reduce) {
   :is(.home, .lessons, .courses, .cert-grid, .careers, .proj-grid, .entries, .watch-grid) > * { animation: none; }
 }
-
-/* Ordre des plans : décor CSS tout au fond, scène 3D par-dessus, puis l'interface */
-.has-3d .app-scene { z-index: -2; }

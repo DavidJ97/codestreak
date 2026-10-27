@@ -1,0 +1,60 @@
+/* ============================================================================
+   depth.css — La 3D : scène WebGL, cartes en relief, profondeur
+   ========================================================================== */
+
+/* La scène WebGL, fixe, derrière tout (au-dessus du décor CSS de secours) */
+.scene3d { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; display: block; }
+/* Quand la 3D tourne, le décor CSS ne garde que ses lueurs de couleur */
+.has-3d .app-scene svg { display: none; }
+.has-3d .app-scene i { opacity: .45; }
+
+/* ---------- Cartes en relief (tilt.js) ---------- */
+.course, .lesson-card, .career, .cert, .proj, .proj-band, .kpi, .entry, .watch,
+.result-stat, .continue, .card, .unit {
+  transition: transform .5s cubic-bezier(.2, .8, .2, 1), box-shadow .3s;
+  transform-style: preserve-3d;
+}
+.tilt {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(14px) !important;
+  transition: transform .08s linear, box-shadow .3s !important;
+  box-shadow: 0 30px 60px -24px rgba(0, 0, 0, .65), 0 0 0 1px rgba(255, 255, 255, .06) !important;
+  z-index: 2;
+}
+/* Le tableau de bord garde son apparition, en plus de l'inclinaison */
+.gl-card.tilt {
+  transform: perspective(900px) translateY(calc((1 - var(--in)) * 18 * var(--u))) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(14px) !important;
+}
+/* Un reflet qui suit le pointeur sur le verre */
+.tilt::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 1;
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, .16), transparent 45%);
+  mix-blend-mode: screen;
+}
+/* Le tableau de bord utilise déjà ::before pour son liseré : reflet par-dessous */
+.gl-card.tilt::before {
+  background: linear-gradient(160deg, var(--gl-rim-bright) 0%, var(--gl-rim-mid) 18%, var(--gl-rim-soft) 55%, var(--gl-rim-low) 100%);
+  mix-blend-mode: normal; z-index: auto;
+}
+.gl-card.tilt { background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, .14), transparent 50%), var(--gl-tint); }
+
+/* ---------- Profondeur des pages ---------- */
+/* La page entre en arc ET en profondeur, depuis le fond de la scène */
+@keyframes arc-in {
+  from { transform: perspective(1400px) rotate(var(--arc-from)) translateZ(-180px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+/* Les blocs de l'accueil et des listes arrivent en profondeur, en cascade */
+.home > *, .lessons > *, .courses > *, .cert-grid > *, .careers > *, .proj-grid > *, .entries > *, .watch-grid > * { animation: depth-in .7s cubic-bezier(.2, .8, .2, 1) both; }
+:is(.home, .lessons, .courses, .cert-grid, .careers, .proj-grid, .entries, .watch-grid) > *:nth-child(2) { animation-delay: .06s; }
+:is(.home, .lessons, .courses, .cert-grid, .careers, .proj-grid, .entries, .watch-grid) > *:nth-child(3) { animation-delay: .12s; }
+:is(.home, .lessons, .courses, .cert-grid, .careers, .proj-grid, .entries, .watch-grid) > *:nth-child(4) { animation-delay: .18s; }
+:is(.home, .lessons, .courses, .cert-grid, .careers, .proj-grid, .entries, .watch-grid) > *:nth-child(n+5) { animation-delay: .24s; }
+@keyframes depth-in { from { opacity: 0; transform: perspective(1200px) translateZ(-120px) rotateX(8deg); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.home, .lessons, .courses, .cert-grid, .careers, .proj-grid, .entries, .watch-grid) > * { animation: none; }
+  .tilt { transform: none !important; }
+}
+
+/* Ordre des plans : décor CSS tout au fond, scène 3D par-dessus, puis l'interface */
+.has-3d .app-scene { z-index: -2; }

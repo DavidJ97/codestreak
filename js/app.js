@@ -143,6 +143,8 @@ const App = (() => {
     document.getElementById("crumb").innerHTML = crumb;
     window.scrollTo({ top: 0 });
     if (window.Dial) Dial.sync(nav); // le cadran se recale sur la page affichée
+    // La scène 3D change de point de vue selon la page (js/scene3d.js)
+    if (window.Scene3D) Scene3D.view(focus ? "focus" : ["home", "projects", "certs", "journal"].includes(nav) ? nav : "course");
   }
 
   /**
@@ -1463,6 +1465,8 @@ const App = (() => {
     Streak.refresh();  // applique les gels / casse le streak si des jours ont été manqués
     Chat.init();
     renderStats();
+    if (window.Scene3D) Scene3D.init(); // la scène WebGL derrière le verre
+    if (window.Tilt) Tilt.init();       // les cartes en relief sous le pointeur
     if (window.Dial) Dial.init(goPage); // le cadran rotatif, navigation principale
     // Les nombres rayés qui roulent, partout (js/glass.js)
     if (window.Glass) ["view", "stats", "rail", "sidebar-streak"].forEach((id) => Glass.watch(document.getElementById(id)));

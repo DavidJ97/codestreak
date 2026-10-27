@@ -293,11 +293,30 @@ const App = (() => {
           <h1>Une leçon par jour. Un projet GitHub à la fin.</h1>
           <p>Des fondations (Python, COBOL) à l'avant-garde de l'IA (UX, AI engineering, linguistique, sécurité), avec des sources officielles et des projets qui se montrent en entrevue.</p>
         </header>
+        <section id="world" aria-label="Ton parcours en 3D"></section>
         ${cont}
         <section class="glass-band" id="glass" aria-label="Ta progression"></section>
         ${projBand}
         ${sections}
       </div>`;
+    // Le monde 3D (js/world3d.js) : on navigue dans l'app par étapes
+    const world = document.getElementById("world");
+    if (world && window.World) {
+      const wc = target || courses[0];
+      const wi = target ? nextIndex(target) : 0;
+      World.mount(world, {
+        icon,
+        info: { courseName: wc.name, lessonTitle: wc.lessons[wi].title, lessonNum: wi + 1 },
+        onOpen: (id) => {
+          if (id === "learn") renderCourse(wc.id);
+          else if (id === "practice") startLesson(wc.id, wi);
+          else if (id === "build" || id === "publish") renderProjects();
+          else if (id === "certify") renderCerts();
+          else if (id === "watch") renderJournal();
+          else if (id === "tutor") Chat.toggle();
+        },
+      });
+    }
     // Tableau de bord en verre (js/glass.js) : série, objectif du jour, XP, semaine
     const glass = document.getElementById("glass");
     if (glass && window.Glass) {

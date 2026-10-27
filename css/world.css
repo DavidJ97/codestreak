@@ -1,0 +1,94 @@
+/* ============================================================================
+   world.css — Le monde 3D de l'accueil (js/world3d.js)
+   Une scène isométrique dans une grande carte sombre, puis la rangée
+   d'étapes (icône dans un cercle) et le panneau de l'étape choisie.
+   ========================================================================== */
+
+.world { display: grid; gap: 22px; }
+
+/* La scène : une vitrine sombre au grain de points */
+.w3-stage {
+  position: relative; overflow: hidden;
+  aspect-ratio: 16 / 9; min-height: 300px;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, .06) 1px, transparent 0) 0 0 / 7px 7px,
+    radial-gradient(ellipse at 50% 60%, #1d1d24 0%, #111116 70%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08), 0 40px 80px -30px rgba(0, 0, 0, .8);
+}
+.w3-stage canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; }
+/* La lueur verte/orangée sous la vitrine, comme une machine allumée */
+.w3-stage::after {
+  content: ""; position: absolute; left: 10%; right: 10%; bottom: -40px; height: 80px; pointer-events: none;
+  background: radial-gradient(ellipse, rgba(255, 106, 42, .25), transparent 70%); filter: blur(10px);
+}
+
+/* Ligne d'état en police mono, en haut à gauche (style terminal) */
+.w3-hud { position: absolute; left: 20px; top: 16px; z-index: 1; pointer-events: none; }
+.w3-status {
+  font: 500 13px/1 "Geist Mono", ui-monospace, monospace; letter-spacing: .02em;
+  color: #5ee39a; padding: 8px 12px; border-radius: 999px;
+  background: rgba(10, 10, 14, .6); box-shadow: inset 0 0 0 1px rgba(94, 227, 154, .25);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+
+/* Les étapes : une rangée de cercles */
+.w3-steps {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 18px 8px;
+}
+.w3-step {
+  flex: 0 0 104px; display: grid; justify-items: center; gap: 9px;
+  background: none; border: 0; padding: 0; cursor: pointer; color: rgba(255, 255, 255, .5);
+  font: 500 13px/1.25 var(--font); text-align: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.w3-ring {
+  width: 62px; height: 62px; border-radius: 50%; display: grid; place-items: center;
+  color: rgba(255, 168, 110, .65);
+  box-shadow: inset 0 0 0 1.5px rgba(255, 138, 74, .35);
+  background: rgba(255, 255, 255, .02);
+  transition: box-shadow .35s, color .35s, transform .35s cubic-bezier(.2, .8, .2, 1), background .35s;
+}
+.w3-step:hover .w3-ring { color: #ffb27a; box-shadow: inset 0 0 0 1.5px rgba(255, 138, 74, .65); }
+.w3-step.on { color: #ffc891; }
+.w3-step.on .w3-ring {
+  color: #fff; transform: translateY(-3px) scale(1.06);
+  background: radial-gradient(circle, rgba(255, 106, 42, .28), rgba(255, 106, 42, .06) 70%);
+  box-shadow: inset 0 0 0 2px #ff8a4a, 0 0 0 6px rgba(255, 138, 74, .1), 0 0 28px rgba(255, 106, 42, .55);
+}
+.w3-step:focus-visible { outline: none; }
+.w3-step:focus-visible .w3-ring { outline: 2px solid #fff; outline-offset: 4px; }
+
+/* Le panneau de l'étape */
+.w3-info {
+  justify-self: center; width: min(640px, 100%); text-align: center;
+  display: grid; justify-items: center; gap: 8px;
+}
+.w3-info.in > * { animation: w3-in .5s cubic-bezier(.2, .8, .2, 1) both; }
+.w3-info.in > *:nth-child(2) { animation-delay: .04s; }
+.w3-info.in > *:nth-child(3) { animation-delay: .08s; }
+.w3-info.in > *:nth-child(4) { animation-delay: .12s; }
+@keyframes w3-in { from { opacity: 0; translate: 0 10px; } to { opacity: 1; translate: 0 0; } }
+.w3-num { font: 500 12px/1 "Geist Mono", ui-monospace, monospace; letter-spacing: .14em; color: #ffb27a; }
+.w3-info h3 { font-size: clamp(24px, 3vw, 32px); font-weight: 600; letter-spacing: -.025em; margin: 0; }
+.w3-info p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.55; }
+.w3-cta {
+  margin-top: 8px; display: inline-flex; align-items: center; gap: 10px;
+  padding: 13px 20px; border: 0; border-radius: 999px; cursor: pointer;
+  font: 600 15px/1 var(--font); color: #1a0d05;
+  background: linear-gradient(180deg, #ffc891, #ff8a4a);
+  box-shadow: 0 10px 30px -8px rgba(255, 106, 42, .6), inset 0 1px 0 rgba(255, 255, 255, .5);
+  transition: transform .2s, box-shadow .2s;
+}
+.w3-cta:hover { transform: translateY(-2px); box-shadow: 0 16px 36px -8px rgba(255, 106, 42, .7), inset 0 1px 0 rgba(255, 255, 255, .5); }
+
+/* Téléphone : scène plus haute, 4 étapes par ligne */
+@media (max-width: 640px) {
+  .w3-stage { aspect-ratio: 1 / 1.05; border-radius: 22px; min-height: 0; }
+  .w3-steps { gap: 16px 0; }
+  .w3-step { flex-basis: 25%; font-size: 12px; }
+  .w3-ring { width: 54px; height: 54px; }
+  .w3-hud { left: 14px; top: 12px; }
+  .w3-status { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .w3-info.in > * { animation: none; } }
